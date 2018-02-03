@@ -1,183 +1,77 @@
+var riddles = [];
 
-function SecretSantaInterface() {
-
-	//alert("function SecretSantaInterface()");
-	this.canvas = document.getElementById("InteractiveCanvas");
-	//set canvas dimensions
-	this.canvas.width = window.innerWidth - 50;
-	this.canvas.height = window.innerHeight - 150;
-
-	//create context and empty entity list (everything is an entity except the background)
-	this.ctx = this.canvas.getContext('2d');
-
-	//Start
-	this.drawAll();
-}
-
-SecretSantaInterface.prototype.drawAll = function() {
-	var self = this;
-
-	//request next frame, with callback to this function
-	window.requestAnimationFrame(this.drawAll.bind(this));
+function DisplayInput() {
+    document.getElementById('inputText').style.visibility = 'hidden';
+    console.log("inputText: " + document.getElementById('inputText').value);
 }
 
 function StartNewGame() {
-    document.getElementById('button1').style.visibility = 'hidden';
-    document.getElementById('button2').style.visibility = 'hidden';
-    document.getElementById('button4').style.visibility = 'hidden';
-    //role = "server";
-    currentGameRiddles = getRiddlesFromServer();
-    httpPost();
+    //document.getElementById('button1').style.visibility = 'hidden';
+    //document.getElementById('button2').style.visibility = 'hidden';
+    //document.getElementById('button3').style.visibility = 'hidden';
+    //document.getElementById('button4').style.visibility = 'hidden';
+
+    //TODO display game board
+
+    //TODO display question
+
+    //TODO poll for changes
+
+    return riddles[0].answer;
 }
 
 function JoinGame() {
-    document.getElementById('button1').style.visibility = 'hidden';
-    document.getElementById('button2').style.visibility = 'hidden';
-    document.getElementById('button3').style.visibility = 'hidden';
-    //role = "client";
+    //document.getElementById('button1').style.visibility = 'hidden';
+    //document.getElementById('button2').style.visibility = 'hidden';
+    //document.getElementById('button3').style.visibility = 'hidden';
+    //document.getElementById('button4').style.visibility = 'hidden';
+
+    var serverJsonAsText = GetJson();
+
+    riddles = JSON.parse(serverJsonAsText);
+
+    //TODO display current question
+
+    //TODO display testbox for answer
+
+    //TODO send answer
+
+    return riddles[0].question;
 }
 
-function displayCurrentGame() {
-    var games = getGamesFromServer();
-
-    var retVal = "";
-
-    for(var i = 0; i < games.length; i++) {
-        var game = games[i];
-        retVal +=
-            game.Id + ": " + "____" +
-            game.gameId + "<br>";
-    }
-
-    return retVal;
-}
-
-function displayRiddles()
-{
-    var riddles = getRiddlesFromServer();
-
-    return riddlesAsString(riddles);
-}
-
-function getGamesFromServer()
-{
-    var response = httpGet("https://sheets.googleapis.com/v4/spreadsheets/1GSNfhGn2CeTzpqgQik0LpXdivIy4NDQYye06o3m1eD4/values/Games?key=AIzaSyAA_GuyTMBfuNwfVwFFahFiVZql23-xe-Y&majorDimension=ROWS");
-
-    return gameListFromResponse(response);
-}
-
-function postGameToServer()
-{
-    var response = httpGet("https://sheets.googleapis.com/v4/spreadsheets/1GSNfhGn2CeTzpqgQik0LpXdivIy4NDQYye06o3m1eD4/values/Games?key=AIzaSyAA_GuyTMBfuNwfVwFFahFiVZql23-xe-Y&majorDimension=ROWS");
-
-    return gameListFromResponse(response);
-}
-
-function gameListFromResponse(httpResponse)
-{
-    var arrayOfArrays = JSON.parse(httpResponse);
-    var games = [];
-
-    for(var i = 0; i < arrayOfArrays.values.length; i++) {
-        var game = new Object();
-        var array = arrayOfArrays.values[i];
-        game.id = i + 1;
-        game.gameId = array[0];
-        games.push(game);
-    }
-
-	return games;
-}
-
-function getRiddlesFromServer()
-{
-    var response = httpGet("https://sheets.googleapis.com/v4/spreadsheets/1GSNfhGn2CeTzpqgQik0LpXdivIy4NDQYye06o3m1eD4/values/Riddles?key=AIzaSyAA_GuyTMBfuNwfVwFFahFiVZql23-xe-Y&majorDimension=ROWS");
-
-    return riddleListFromResponse(response);
-}
-
-function riddlesAsString(riddles) {
-    var retVal = "";
-
-    for(var i = 0; i < riddles.length; i++) {
-        var riddle = riddles[i];
-        retVal +=
-            "Riddle " + i + ": " + "____" +
-            riddle.question + "____" +
-            riddle.answer + "    " +
-            riddle.units + "<br>";
-    }
-
-    return retVal;
-}
-
-function riddleListFromResponse(httpResponse)
-{
-    var arrayOfArrays = JSON.parse(httpResponse);
-    var riddles = [];
-
-    for(var i = 0; i < arrayOfArrays.values.length; i++) {
-        var riddle = new Object();
-        var array = arrayOfArrays.values[i];
-        riddle.id = i + 1;
-        riddle.question = array[0];
-        riddle.answer = array[1];
-        riddle.units = array[2];
-        riddle.funfact = array[3];
-        riddle.sourcename = array[4];
-        riddle.source = array[5];
-        riddle.sourcetype = array[6];
-        riddle.sourceyear = array[7];
-        riddle.creationdate = array[8];
-        riddle.createdby = array[9];
-        riddle.lastuseddate = array[10];
-        riddles.push(riddle);
-    }
-
-    console.log("Retrieved Riddles:");
-    console.log(riddlesAsString(riddles));
-
-	return riddles;
-}
-
-function httpGet(theUrl)
-{
+function GetJson() {
     var xmlHttp = new XMLHttpRequest();
+    var theUrl = "https://api.myjson.com/bins/10zvwh";
     xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
+        if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+            console.log("Post returned 200! " + xmlHttp.responseText);
+            riddles = JSON.parse(xmlHttp.responseText);
+        }
+        else {
+        console.log("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
+        }
+    }
     xmlHttp.send( null );
     return xmlHttp.responseText;
 }
 
-//this function doesn't work
-function httpPost() {
-    var http = new XMLHttpRequest();
-    var url = "https://sheets.googleapis.com/v4/spreadsheets/1GSNfhGn2CeTzpqgQik0LpXdivIy4NDQYye06o3m1eD4/values/Games!A1:append?key=AIzaSyAA_GuyTMBfuNwfVwFFahFiVZql23-xe-Y&majorDimension=ROWS?Game=9999";
-    var body = '{' +
-                  '"range": "Games",' +
-                  '"majorDimension": "ROWS",' +
-                  '"values": [[' +
-                  '"1",' +
-                  '"2",' +
-                  '"3",' +
-                  '"4"' +
-                  ']],' +
-                '}';
-
-    http.open("POST", url, true);
-
-    //Send the proper header information along with the request
-    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    http.setRequestHeader("Access-Control-Allow-Origin", "*");
-
-    http.onreadystatechange = function() {//Call a function when the state changes.
-        if(http.readyState == 4 && http.status == 200) {
-            alert(http.responseText);
+function PutJson() {
+    var xmlHttp = new XMLHttpRequest();
+    var theUrl = "https://api.myjson.com/bins/10zvwh";
+    xmlHttp.open( "PUT", theUrl, false ); // false for synchronous request
+    xmlHttp.setRequestHeader("Content-Type", "application/json");
+    xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
+        if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
+            console.log("Put Success " + xmlHttp.responseText);
+        }
+        else {
+        console.log("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
         }
     }
-    http.send(body);
-    console.log("response " + http.response);
-    console.log("responsetext " + http.responseText);
-}
 
-var ssInterface = new SecretSantaInterface();
-////ssInterface.drawAll();
+    var json = JSON.stringify(riddles);
+
+    xmlHttp.send( json );
+    return xmlHttp.responseText;
+}
