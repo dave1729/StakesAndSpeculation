@@ -4,11 +4,12 @@
 <h1>Stakes and Speculation!</h1>
 <meta charset="utf-8"/>
 <p id="displaytext"> </p>
-<button type="button" id="button1" onclick="document.getElementById('displaytext').innerHTML = displayRiddles()">Display Questions</button>
-<button type="button" id="button2" onclick="document.getElementById('displaytext').innerHTML = displayCurrentGame()">Display Current Game</button>
-<button type="button" id="button3" onclick="StartNewGame()">Make New Game</button>
-<button type="button" id="button4" onclick="JoinGame()">Join Game</button>
-<canvas id="InteractiveCanvas"></canvas>
+<input type="text" id="inputText" >
+<button type="button" id="button0" onclick="DisplayInput()">Submit</button>
+<button type="button" id="button1" onclick="document.getElementById('displaytext').innerHTML = StartNewGame()">Use This Screen As Game Board</button>
+<button type="button" id="button2" onclick="document.getElementById('displaytext').innerHTML = JoinGame()">Join Game</button>
+<button type="button" id="button3" onclick="document.getElementById('displaytext').innerHTML = GetJson()">Get Json</button>
+<button type="button" id="button4" onclick="document.getElementById('displaytext').innerHTML = PutJson()">Put Json</button>
 <script type="text/javascript" src="inputmanager.js"></script>
 <script type="text/javascript" src="main.js"></script>
 </body>
