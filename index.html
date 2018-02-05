@@ -3,13 +3,31 @@
 <body>
 <h1>Stakes and Speculation!</h1>
 <meta charset="utf-8"/>
-<p id="displaytext"> </p>
-<input type="text" id="inputText" >
-<button type="button" id="button0" onclick="DisplayInput()">Submit</button>
-<button type="button" id="button1" onclick="document.getElementById('displaytext').innerHTML = StartNewGame()">Use This Screen As Game Board</button>
-<button type="button" id="button2" onclick="document.getElementById('displaytext').innerHTML = JoinGame()">Join Game</button>
-<button type="button" id="button3" onclick="document.getElementById('displaytext').innerHTML = GetJson()">Get Json</button>
-<button type="button" id="button4" onclick="document.getElementById('displaytext').innerHTML = PutJson()">Put Json</button>
+<p id="display-text-label"> </p>
+<label id="game-id-input-label">Game</label><input type="text" id="game-id-input" >
+<button type="button" id="submit-input-button" onclick="SendInput()" >Submit</button>
+<button type="button" id="start-new-game-button" onclick="StartNewGame()">Use This Screen As Game Board</button>
+<button type="button" id="join-game-button" onclick="JoinGame()">Join Game on Device</button>
+<button type="button" id="toggle-debugging-buttons" onclick="DisplayDebuggingButtons()" >Toggle Debugging Buttons</button>
+<br>
+<button type="button" id="get-riddles-button" onclick="GetRiddles()" >Get Riddles</button>
+<button type="button" id="save-riddles-button" onclick="SaveRiddles()" >Save Riddles</button>
+<button type="button" id="display-riddles-button" onclick="DisplayRiddles()" >Display Riddles</button>
+<br>
+<button type="button" id="get-games-button" onclick="GetGames()" >Get Games</button>
+<button type="button" id="save-games-button" onclick="SaveGames()" >Save Games</button>
+<button type="button" id="display-games-button" onclick="DisplayGames()" >Display Games</button>
+<script type="text/javascript">
+document.getElementById("game-id-input-label").style.visibility = "hidden";
+document.getElementById("game-id-input").style.visibility = "hidden";
+document.getElementById("submit-input-button").style.visibility = "hidden";
+document.getElementById("get-riddles-button").style.visibility = "hidden";
+document.getElementById("save-riddles-button").style.visibility = "hidden";
+document.getElementById("display-riddles-button").style.visibility = "hidden";
+document.getElementById("get-games-button").style.visibility = "hidden";
+document.getElementById("save-games-button").style.visibility = "hidden";
+document.getElementById("display-games-button").style.visibility = "hidden";
+</script>
 <script type="text/javascript" src="inputmanager.js"></script>
 <script type="text/javascript" src="main.js"></script>
 </body>
