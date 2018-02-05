@@ -72,7 +72,7 @@ function PollForGameResults() {
     document.getElementById("display-text-label").innerHTML = JSON.stringify(currentGame);
     console.log("Polling for most recent game changes.");
     GetGames("async");
-    setTimeout(PollForGameResults, 8000);
+    setTimeout(PollForGameResults, 5000);
 }
 
 function JoinGame() {
@@ -85,6 +85,8 @@ function JoinGame() {
     document.getElementById('save-games-button').style.visibility = 'hidden';
     document.getElementById('display-games-button').style.visibility = 'hidden';
 
+    document.getElementById("player-id-input-label").style.visibility = "visible";
+    document.getElementById("player-id-input").style.visibility = "visible";
     document.getElementById("game-id-input-label").style.visibility = "visible";
     document.getElementById("game-id-input").style.visibility = "visible";
     document.getElementById("submit-input-button").style.visibility = "visible";
@@ -98,6 +100,7 @@ function JoinGame() {
 
 function SendInput() {
     var gameId = document.getElementById("game-id-input").value;
+    var playerName = document.getElementById("player-id-input").value;
 
     //set the right game
     for(var i = 0; i < games.length; i++) {
@@ -106,10 +109,13 @@ function SendInput() {
             console.log("Success in finding the game.");
 
             currentParticipant = new Object();
+            currentParticipant.name = playerName;
             currentParticipant.color = "blue";
             current.participants.push(currentParticipant);
             games[i] = current;
             currentGame = current;
+
+            SaveGames();
         }
     }
 }
