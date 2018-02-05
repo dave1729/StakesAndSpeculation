@@ -68,7 +68,7 @@ function StartNewGame() {
 }
 
 function PollForGameResults() {
-
+    SetCurrentGame();
     document.getElementById("display-text-label").innerHTML = JSON.stringify(currentGame);
     console.log("Polling for most recent game changes.");
     GetGames("async");
