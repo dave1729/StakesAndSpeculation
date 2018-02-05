@@ -4,8 +4,10 @@
 <h1>Stakes and Speculation!</h1>
 <meta charset="utf-8"/>
 <p id="display-text-label"> </p>
+<label id="player-id-input-label">Player Name</label><input type="text" id="player-id-input" >
 <label id="game-id-input-label">Game</label><input type="text" id="game-id-input" >
-<button type="button" id="submit-input-button" onclick="SendInput()" >Submit</button>
+<button type="button" id="submit-input-button" onclick="SendInput()" >Submit Game and Name</button>
+
 <button type="button" id="start-new-game-button" onclick="StartNewGame()">Use This Screen As Game Board</button>
 <button type="button" id="join-game-button" onclick="JoinGame()">Join Game on Device</button>
 <button type="button" id="toggle-debugging-buttons" onclick="DisplayDebuggingButtons()" >Toggle Debugging Buttons</button>
@@ -18,6 +20,8 @@
 <button type="button" id="save-games-button" onclick="SaveGames()" >Save Games</button>
 <button type="button" id="display-games-button" onclick="DisplayGames()" >Display Games</button>
 <script type="text/javascript">
+document.getElementById("player-id-input-label").style.visibility = "hidden";
+document.getElementById("player-id-input").style.visibility = "hidden";
 document.getElementById("game-id-input-label").style.visibility = "hidden";
 document.getElementById("game-id-input").style.visibility = "hidden";
 document.getElementById("submit-input-button").style.visibility = "hidden";
