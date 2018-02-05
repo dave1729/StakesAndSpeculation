@@ -1,5 +1,7 @@
 var riddles = [];
 var games = [];
+var currentGame = {};
+var currentParticipant = {};
 GetGames("async");
 
 //"display-text-label"
@@ -13,8 +15,6 @@ GetGames("async");
 //"display-riddles-button" onclick="DisplayRiddles()"
 
 function DisplayDebuggingButtons() {
-    ToggleVisibleAndHidden('start-new-game-button');
-    ToggleVisibleAndHidden('join-game-button');
     ToggleVisibleAndHidden('get-riddles-button');
     ToggleVisibleAndHidden('save-riddles-button');
     ToggleVisibleAndHidden('display-riddles-button');
@@ -47,17 +47,18 @@ function StartNewGame() {
     document.getElementById('get-games-button').style.visibility = 'hidden';
     document.getElementById('save-games-button').style.visibility = 'hidden';
     document.getElementById('display-games-button').style.visibility = 'hidden';
-    document.getElementById('toggle-debugging-buttons').style.visibility = 'hidden';
 
-    var newGame = new Object();
-    newGame.id = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-    newGame.participants = [];
-    newGame.date = Date.now();
-    games.push(newGame);
+    currentGame = new Object();
+    currentGame.id = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+    currentGame.participants = [];
+    currentGame.date = Date.now();
+    games.push(currentGame);
     console.log("SAVE GAMES 1");
     SaveGames();
-    console.log(newGame.id);
-    document.getElementById("display-text-label").innerHTML = "Game ID: " + newGame.id;
+    console.log(currentGame.id);
+    document.getElementById("display-text-label").innerHTML = "Game ID: " + currentGame.id;
+
+    setTimeout(PollForGameResults, 8000);
 
     //TODO display game board
 
@@ -66,19 +67,65 @@ function StartNewGame() {
     //TODO poll for changes
 }
 
+function PollForGameResults() {
+
+    document.getElementById("display-text-label").innerHTML = JSON.stringify(currentGame);
+    console.log("Polling for most recent game changes.");
+    GetGames("async");
+    setTimeout(PollForGameResults, 8000);
+}
+
 function JoinGame() {
+    document.getElementById('start-new-game-button').style.visibility = 'hidden';
+    document.getElementById('join-game-button').style.visibility = 'hidden';
+    document.getElementById('get-riddles-button').style.visibility = 'hidden';
+    document.getElementById('save-riddles-button').style.visibility = 'hidden';
+    document.getElementById('display-riddles-button').style.visibility = 'hidden';
+    document.getElementById('get-games-button').style.visibility = 'hidden';
+    document.getElementById('save-games-button').style.visibility = 'hidden';
+    document.getElementById('display-games-button').style.visibility = 'hidden';
 
-    var serverJsonAsText = GetRiddles();
-
-    riddles = JSON.parse(serverJsonAsText);
+    document.getElementById("game-id-input-label").style.visibility = "visible";
+    document.getElementById("game-id-input").style.visibility = "visible";
+    document.getElementById("submit-input-button").style.visibility = "visible";
 
     //TODO display current question
 
     //TODO display testbox for answer
 
     //TODO send answer
+}
 
-    return riddles[0].question;
+function SendInput() {
+    var gameId = document.getElementById("game-id-input").value;
+
+    //set the right game
+    for(var i = 0; i < games.length; i++) {
+        var current = games[i];
+        if(current.id === gameId) {
+            console.log("Success in finding the game.");
+
+            currentParticipant = new Object();
+            currentParticipant.color = "blue";
+            current.participants.push(currentParticipant);
+            games[i] = current;
+            currentGame = current;
+        }
+    }
+}
+
+function SetCurrentGame() {
+    if(currentGame === null || currentGame == "undefined") {
+        console.log("Game Wasn't found, when attempted.");
+    }
+
+    for(var i = 0; i < games.length; i++) {
+        var current = games[i];
+        if(current.id === currentGame.id) {
+        currentGame = current;
+        console.log("Success in finding the game.");
+        }
+    }
 }
 
 function DisplayRiddles() {
@@ -128,11 +175,9 @@ function GetJson(myJsonId, objectTypeName, syncOrAsync) {
                 console.log("objectTypeName wasn't Riddles or Games! When Getting.");
                 alert("Error: objectTypeName wasn't Riddles or Games!");
             }
-            document.getElementById("display-text-label").innerHTML = objectTypeName + " Retrieved.";
         }
         else {
             console.log("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
-            document.getElementById("display-text-label").innerHTML = "Error Getting " + objectTypeName + ".";
         }
     }
     xmlHttp.send( null );
@@ -147,11 +192,9 @@ function SaveJson(myJsonId, objectTypeName) {
     xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
         if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
             console.log("Put Success " + xmlHttp.responseText);
-            document.getElementById("display-text-label").innerHTML = objectTypeName + " Saved.";
         }
         else {
             console.log("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
-            document.getElementById("display-text-label").innerHTML = "Error Saving " + objectTypeName + ".";
         }
     }
 
