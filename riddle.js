@@ -11,6 +11,7 @@ function Riddle(riddleAsArray) {
    this.creationdate = riddleAsArray[9];
    this.createdby = riddleAsArray[10];
    this.lastuseddate = riddleAsArray[11];
+   this.questionIndex = riddleAsArray[12];
 }
 
 Riddle.prototype.addGroup = function(newGroupName, ctx) {
