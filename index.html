@@ -4,12 +4,11 @@
 <h1>Stakes and Speculation!</h1>
 <meta charset="utf-8"/>
 <p id="display-text-label"> </p>
-<label id="player-id-input-label">Player Name</label><input type="text" id="player-id-input" >
-<label id="game-id-input-label">Game</label><input type="text" id="game-id-input" >
-<button type="button" id="submit-input-button" onclick="SendInput()" >Submit Game and Name</button>
-
+<br>
 <button type="button" id="start-new-game-button" onclick="StartNewGame()">Use This Screen As Game Board</button>
 <button type="button" id="join-game-button" onclick="JoinGame()">Join Game on Device</button>
+<br>
+<span id="body-span"></span>
 <button type="button" id="toggle-debugging-buttons" onclick="DisplayDebuggingButtons()" >Toggle Debugging Buttons</button>
 <br>
 <button type="button" id="get-riddles-button" onclick="GetRiddles()" >Get Riddles</button>
@@ -18,20 +17,20 @@
 <br>
 <button type="button" id="get-games-button" onclick="GetGames()" >Get Games</button>
 <button type="button" id="save-games-button" onclick="SaveGames()" >Save Games</button>
+<button type="button" id="erase-games-button" onclick="EraseGames()" >Erase Games</button>
 <button type="button" id="display-games-button" onclick="DisplayGames()" >Display Games</button>
 <script type="text/javascript">
-document.getElementById("player-id-input-label").style.visibility = "hidden";
-document.getElementById("player-id-input").style.visibility = "hidden";
-document.getElementById("game-id-input-label").style.visibility = "hidden";
-document.getElementById("game-id-input").style.visibility = "hidden";
-document.getElementById("submit-input-button").style.visibility = "hidden";
 document.getElementById("get-riddles-button").style.visibility = "hidden";
 document.getElementById("save-riddles-button").style.visibility = "hidden";
 document.getElementById("display-riddles-button").style.visibility = "hidden";
 document.getElementById("get-games-button").style.visibility = "hidden";
 document.getElementById("save-games-button").style.visibility = "hidden";
+document.getElementById("erase-games-button").style.visibility = "hidden";
 document.getElementById("display-games-button").style.visibility = "hidden";
 </script>
+<script type="text/javascript" src="game.js"></script>
+<script type="text/javascript" src="player.js"></script>
+<script type="text/javascript" src="riddle.js"></script>
 <script type="text/javascript" src="inputmanager.js"></script>
 <script type="text/javascript" src="main.js"></script>
 </body>
