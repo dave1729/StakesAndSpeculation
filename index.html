@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <body>
-<h1>Stakes and Speculation!</h1>
+<h1>Stakes and Speculation!</a></h1>
 <meta charset="utf-8"/>
 <p id="display-text-label"> </p>
 <br>
-<button type="button" id="start-new-game-button" onclick="StartNewGame()">Use This Screen As Game Board</button>
+<button type="button" id="start-new-game-button" onclick="UseThisScreenAsGameBoard()">Use This Screen As Game Board</button>
 <button type="button" id="join-game-button" onclick="JoinGame()">Join Game on Device</button>
 <br>
 <span id="body-span"></span>
+<br><br>
 <button type="button" id="toggle-debugging-buttons" onclick="DisplayDebuggingButtons()" >Toggle Debugging Buttons</button>
 <br>
 <button type="button" id="get-riddles-button" onclick="GetRiddles()" >Get Riddles</button>
@@ -19,6 +20,7 @@
 <button type="button" id="save-games-button" onclick="SaveGames()" >Save Games</button>
 <button type="button" id="erase-games-button" onclick="EraseGames()" >Erase Games</button>
 <button type="button" id="display-games-button" onclick="DisplayGames()" >Display Games</button>
+<p id="display-test-text-label"> </p>
 <script type="text/javascript">
 document.getElementById("get-riddles-button").style.visibility = "hidden";
 document.getElementById("save-riddles-button").style.visibility = "hidden";
@@ -27,11 +29,16 @@ document.getElementById("get-games-button").style.visibility = "hidden";
 document.getElementById("save-games-button").style.visibility = "hidden";
 document.getElementById("erase-games-button").style.visibility = "hidden";
 document.getElementById("display-games-button").style.visibility = "hidden";
+document.getElementById("display-test-text-label").style.visibility = "hidden";
 </script>
-<script type="text/javascript" src="game.js"></script>
-<script type="text/javascript" src="player.js"></script>
+<script type="text/javascript" src="list-tools.js"></script>
 <script type="text/javascript" src="riddle.js"></script>
-<script type="text/javascript" src="inputmanager.js"></script>
+<script type="text/javascript" src="game.js"></script>
+<script type="text/javascript" src="persistence.js"></script>
+<script type="text/javascript" src="player.js"></script>
 <script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="server.js"></script>
+<script type="text/javascript" src="client.js"></script>
+<script type="text/javascript" src="inputmanager.js"></script>
 </body>
 </html>
