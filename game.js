@@ -3,6 +3,7 @@ function Game(selectedRiddles) {
     this.players = [];
     this.date = Date.now();
     this.questionIndex = -1;
+    this.waitingOn = "players";
     this.riddles = selectedRiddles;
 }
 
