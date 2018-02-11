@@ -64,16 +64,16 @@ function SendAnswer() {
     }
 
     var answerValue = document.getElementById("answer-input").value;
-    console.log("answerValue: " + answerValue);
+    console.log("AnswerValue: " + answerValue);
 
     var answerAfterReplace = answerValue.replace(/[^0-9.]+/g, '');
-    console.log("answerAfterReplace: " + answerAfterReplace);
+    console.log("AnswerAfterReplace: " + answerAfterReplace);
 
     var answerAsFloat = parseFloat(answerAfterReplace);
-    console.log("answerAsFloat: " + answerAsFloat);
+    console.log("AnswerAsFloat: " + answerAsFloat);
 
     if(answerAsFloat == null) {
-        document.getElementById("display-text-label").innerHTML = answerValue + "... what is wrong with you?";
+        document.getElementById("second-display-text-label").innerHTML = answerValue + "... what is wrong with you?";
     }
 
     for(var i = 0; i < currentGame.questionIndex+1; i++) {
@@ -91,23 +91,70 @@ function GetGamesAsClient() {
 }
 
 function UpdatePlayerOnBackend() {
-    console.log("Updating Player From Poll");
+    console.log("Updating Current Game from Server.");
+    GetCurrentGame();
     if (MyPlayerIsMissing()){
         console.log("Player is missing, Adding Player.");
-        GetCurrentGame();
         SaveCurrentPlayer();
         SaveGames();
     }
     else if (currentPlayer.color == null) {
-        console.log("Waiting for player color.");
-        GetCurrentGame();
+        console.log("Waiting for player color to be assigned.");
         GetCurrentPlayer();
+    }
+    else if(currentGame.waitingOn == "bets") {
+        console.log("before labels and buttons");
+        //CreateBettingButtonsAndLabels();
+        console.log("after labels and buttons");
     }
     else {
         console.log("Updating game, not overwriting player.");
-        GetCurrentPlayer();
         SaveCurrentPlayer();
     }
+}
+
+function CreateBettingButtonsAndLabels() {
+    var bettingButtonsHtml = "<br>";
+
+    currentGame.players.sort(
+        function(player1, player2){
+            return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
+        }
+    );
+
+    for(var i = 0; i < currentGame.players.length; i++) {
+        var player = currentGame.players[i];
+        bettingButtonsHtml += '<label id="' + player.color + '-label">0</label>';
+        bettingButtonsHtml += '<button type="button" id="' + player.color +
+            '-button" background.color="' + player.color +
+            '" onclick="BetOnPlayer(' + player +
+            ')" >' + player.color + '</button>';
+    }
+
+    bettingButtonsHtml += '<button type="button" id="clear-bets-button" onclick="ClearBets()" >Clear Bets</button>';
+    bettingButtonsHtml += '<button type="button" id="send-bets-button" onclick="SendBets()" >Send Bets</button>';
+
+    document.getElementById("body-span").innerHTML += bettingButtonsHtml;
+    console.log(document.getElementById("body-span").innerHTML);
+}
+
+function BetOnPlayer(player) {
+    var currentValue = document.getElementById(player.name + "-label").innerHtml;
+    if(currentValue = null || currentValue == "") {
+        currentValue = 0;
+    }
+    document.getElementById(player.name + "-label").innerHtml = currentValue + 1;
+}
+
+function ClearBets() {
+    for(var i = 0; i < currentGame.players.length; i++) {
+        var player = currentGame.players[i];
+        document.getElementById(player.name + "-label").innerHtml += "";
+    }
+}
+
+function SendBets() {
+    console.log("Sending Bets Is Not Complete!");
 }
 
 function MyPlayerIsMissing() {

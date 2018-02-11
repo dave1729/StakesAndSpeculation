@@ -11,10 +11,8 @@ function UseThisScreenAsGameBoard() {
 
     currentGame = new Game(selectedRiddles);
     games.push(currentGame);
-    console.log("SAVE GAMES 1");
     SaveGames();
-    console.log(currentGame.id);
-    document.getElementById("display-text-label").innerHTML = "Game ID: " + currentGame.id;
+    document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
 
     setTimeout(PollForGameResultsAsServer, 3000);
 }
@@ -32,15 +30,17 @@ function HandleEndOfTurn() {
         document.getElementById('next-turn-button').innerHTML = "Turn Is Complete";
         currentGame.waitingOn = "answers";
         currentGame.questionIndex++;
+        DisplayNextQuestion();
     }
     else if(currentGame.waitingOn == "answers") {
         DisplayPlayersWithAnswers();
-        setTimeout(SortAnswersForVoting, 2000);
+        setTimeout(DisplayAnswersForVoting, 2000);
+        currentGame.waitingOn = "bets";
     }
     else if(currentGame.waitingOn == "bets") {
-        console.log("Showing Results of Bets");
-        currentGame.waitingOn = "answers";
-        currentGame.questionIndex++;
+        console.log("End Of Turn After Bets Is Not Complete!");
+        ////currentGame.waitingOn = "answers";
+        ////currentGame.questionIndex++;
     }
 
     console.log("Saving Current Game");
@@ -48,9 +48,31 @@ function HandleEndOfTurn() {
     SaveGames();
 }
 
-function SortAnswersForVoting() {
+function DisplayNextQuestion() {
+    var currentRiddle = currentGame.riddles[currentGame.questionIndex];
+    document.getElementById("secondary-display-text-label").innerHTML = "Question: " + currentRiddle.question + "(source: " + currentRiddle.sourceName + " as of " + currentRiddle.sourceYear + ")";
+}
 
-    currentGame.waitingOn = "bets";
+function DisplayAnswersForVoting() {
+    var displayText = '<code contenteditable="true">Answers: ';
+    var players = currentGame.players;
+
+    players.sort(
+        function(player1, player2){
+            return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
+        }
+    );
+
+    for(var i = 0; i < players.length; i++) {
+        var player = players[i];
+        var answer = player.answers[currentGame.questionIndex];
+        displayText += '<span style="color: ' + player.color + '">' + answer + "   " + '</span>';
+    }
+    displayText += '</code>';
+
+    if(document.getElementById('primary-display-text-label').innerHTML != displayText) {
+        document.getElementById('primary-display-text-label').innerHTML = displayText;
+    }
 }
 
 function AssignColorsToPlayers() {
@@ -68,7 +90,7 @@ function PollForGameResultsAsServer() {
 }
 
 function GetGamesAsServer() {
-    console.log("saving index");
+    console.log("Saving question index");
     currentQuestionIndex = currentGame.questionIndex;
 
     GetJson("yymk1", "Games", UpdateServerWithNewGames);
@@ -77,7 +99,7 @@ function GetGamesAsServer() {
 function UpdateServerWithNewGames() {
     GetCurrentGame();
 
-    console.log("restoring index");
+    console.log("Restoring question index");
     currentGame.questionIndex = currentQuestionIndex;
 
     var isEndOfTurn = IsEndOfTurn();
@@ -98,7 +120,7 @@ function UpdateBoard() {
         DisplayPlayersWithAnswers();
     }
     else if(currentGame.waitingOn == "bets") {
-        console.log("Showing Results of Bets");
+        DisplayAnswersForVoting();
     }
 }
 
@@ -107,15 +129,18 @@ function DisplayPendingPlayerNames() {
     for(var i = 0; i < currentGame.players.length; i++) {
         displayText += currentGame.players[i].name + "   ";
     }
-    document.getElementById('display-text-label').innerHTML = displayText;
+
+    if(document.getElementById('primary-display-text-label').innerHTML != displayText) {
+        document.getElementById('primary-display-text-label').innerHTML = displayText;
+    }
 }
 
 function DisplayPlayersWithAnswers() {
-    var displayText = '<code contenteditable="true">Answers: ';
+    var displayText = '<code contenteditable="true">Players: ';
     for(var i = 0; i < currentGame.players.length; i++) {
         var player = currentGame.players[i];
         var answerStatus = "-thinking";
-        var color = "lightgrey";
+        var color = "grey";
 
         if(player.answers[currentGame.questionIndex] != null && player.answers[currentGame.questionIndex] != " ") {
             answerStatus = "-ready";
@@ -124,7 +149,11 @@ function DisplayPlayersWithAnswers() {
 
         displayText += '<span style="color: ' + color + '">' + player.name + answerStatus + "   " + '</span>';
     }
-    document.getElementById('display-text-label').innerHTML = displayText + ';</code>';
+    displayText += '</code>';
+
+    if(document.getElementById('primary-display-text-label').innerHTML != displayText) {
+        document.getElementById('primary-display-text-label').innerHTML = displayText;
+    }
 }
 
 function IsEndOfTurn() {

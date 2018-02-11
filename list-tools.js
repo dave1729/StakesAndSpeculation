@@ -28,9 +28,3 @@ function shuffle(list) {
         list[randIdx] = scanValue;
     }
 }
-
-//currentGame.players.sort(
-//                  function(player1, player2){
-//                     return player2.id - player1.id;
-//                  }
-//);

@@ -3,7 +3,8 @@
 <body>
 <h1>Stakes and Speculation!</a></h1>
 <meta charset="utf-8"/>
-<p id="display-text-label"> </p>
+<p id="primary-display-text-label"> </p>
+<p id="secondary-display-text-label"> </p>
 <br>
 <button type="button" id="start-new-game-button" onclick="UseThisScreenAsGameBoard()">Use This Screen As Game Board</button>
 <button type="button" id="join-game-button" onclick="JoinGame()">Join Game on Device</button>
@@ -15,6 +16,7 @@
 <button type="button" id="get-riddles-button" onclick="GetRiddles()" >Get Riddles</button>
 <button type="button" id="save-riddles-button" onclick="SaveRiddles()" >Save Riddles</button>
 <button type="button" id="display-riddles-button" onclick="DisplayRiddles()" >Display Riddles</button>
+<button type="button" id="clear-secondary-display-button" onclick="ClearSecondaryDisplay()" >Clear Display</button>
 <br>
 <button type="button" id="get-games-button" onclick="GetGames()" >Get Games</button>
 <button type="button" id="save-games-button" onclick="SaveGames()" >Save Games</button>
@@ -25,6 +27,7 @@
 document.getElementById("get-riddles-button").style.visibility = "hidden";
 document.getElementById("save-riddles-button").style.visibility = "hidden";
 document.getElementById("display-riddles-button").style.visibility = "hidden";
+document.getElementById("clear-secondary-display-button").style.visibility = "hidden";
 document.getElementById("get-games-button").style.visibility = "hidden";
 document.getElementById("save-games-button").style.visibility = "hidden";
 document.getElementById("erase-games-button").style.visibility = "hidden";
