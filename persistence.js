@@ -67,8 +67,12 @@ function SaveRiddles() {
     SaveJson("10zvwh", "Riddles");
 }
 
+function ClearSecondaryDisplay() {
+    document.getElementById("secondary-display-text-label").innerHTML = "";
+}
+
 function DisplayRiddles() {
-    document.getElementById("display-text-label").innerHTML = JSON.stringify(riddles);
+    document.getElementById("secondary-display-text-label").innerHTML = JSON.stringify(riddles);
 }
 
 function GetGames() {
@@ -85,7 +89,7 @@ function EraseGames() {
 }
 
 function DisplayGames() {
-    document.getElementById("display-text-label").innerHTML = ////JSON.stringify(games) +
+    document.getElementById("secondary-display-text-label").innerHTML = ////JSON.stringify(games) +
         "<br>" + JSON.stringify(currentGame) + "<br>" + JSON.stringify(currentPlayer);
 }
 
@@ -107,8 +111,7 @@ function GetJson(myJsonId, objectTypeName, callbackOnSuccess) {
                 if(callbackOnSuccess != null) callbackOnSuccess();
             }
             else {
-                console.log("objectTypeName wasn't Riddles or Games! When Getting.");
-                alert("Error: objectTypeName wasn't Riddles or Games!");
+                alert("Error: objectTypeName wasn't Riddles or Games when retrieving!");
             }
         }
         else {
@@ -119,7 +122,6 @@ function GetJson(myJsonId, objectTypeName, callbackOnSuccess) {
 }
 
 function SaveJson(myJsonId, objectTypeName, callbackOnSuccess) {
-    console.log("SAVE GAMES 3");
     var xmlHttp = new XMLHttpRequest();
     var theUrl = "https://api.myjson.com/bins/" + myJsonId;
     xmlHttp.open( "PUT", theUrl, true ); // false for synchronous request
@@ -134,19 +136,17 @@ function SaveJson(myJsonId, objectTypeName, callbackOnSuccess) {
         }
     }
 
-    console.log("HERE");
     if(objectTypeName === "Riddles") {
-        console.log("saving riddles");
+        console.log("Saving riddles");
         var json = JSON.stringify(riddles);
         xmlHttp.send( json );
     }
     else if(objectTypeName === "Games") {
-        console.log("saving games");
+        console.log("Saving games");
         var json = JSON.stringify(games);
         xmlHttp.send( json );
     }
     else {
-        console.log("objectTypeName wasn't Riddles or Games! when saving.");
         alert("Error: objectTypeName wasn't Riddles or Games!");
     }
 }
