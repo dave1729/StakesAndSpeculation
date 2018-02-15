@@ -76,7 +76,7 @@ function DisplayAnswersForVoting() {
 }
 
 function AssignColorsToPlayers() {
-    var colors = [ "blue", "red", "yellow", "fuchsia", "lime", "aqua" ]
+    var colors = [ "blue", "red", "fuchsia", "lime", "aqua" ]
     shuffle(colors);
     for(var i = 0; i < currentGame.players.length; i++) {
         currentGame.players[i].color = colors[i];

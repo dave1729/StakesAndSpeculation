@@ -1,4 +1,8 @@
 var currentPlayer = Player(null, null);
+var bettingButtonsCreated = false;
+var myTotalBet = 0;
+var moneyAtStartOfBetting = -1;
+var bettingLocationsCount = 0;
 
 function PollForGameResultsAsClient() {
     GetGamesAsClient();
@@ -103,9 +107,18 @@ function UpdatePlayerOnBackend() {
         GetCurrentPlayer();
     }
     else if(currentGame.waitingOn == "bets") {
-        console.log("before labels and buttons");
-        //CreateBettingButtonsAndLabels();
-        console.log("after labels and buttons");
+        if(!bettingButtonsCreated) {
+            console.log("before labels and buttons");
+            CreateBettingButtonsAndLabels();
+            console.log("after labels and buttons");
+            bettingButtonsCreated = true;
+            myTotalBet = 0;
+            bettingLocationsCount = 0;
+            moneyAtStartOfBetting = currentPlayer.money;
+        }
+        else {
+
+        }
     }
     else {
         console.log("Updating game, not overwriting player.");
@@ -124,37 +137,81 @@ function CreateBettingButtonsAndLabels() {
 
     for(var i = 0; i < currentGame.players.length; i++) {
         var player = currentGame.players[i];
-        bettingButtonsHtml += '<label id="' + player.color + '-label">0</label>';
+        bettingButtonsHtml += '<label id="' + player.color + '-label" style="color: ' + player.color + '" size="4">0</label>';
         bettingButtonsHtml += '<button type="button" id="' + player.color +
             '-button" background.color="' + player.color +
-            '" onclick="BetOnPlayer(' + player +
+            '" onclick="BetOnPlayer(' + i +
             ')" >' + player.color + '</button>';
     }
 
-    bettingButtonsHtml += '<button type="button" id="clear-bets-button" onclick="ClearBets()" >Clear Bets</button>';
+    bettingButtonsHtml += '<br><button type="button" id="clear-bets-button" onclick="ClearBets()" >Clear Bets</button>';
     bettingButtonsHtml += '<button type="button" id="send-bets-button" onclick="SendBets()" >Send Bets</button>';
 
     document.getElementById("body-span").innerHTML += bettingButtonsHtml;
     console.log(document.getElementById("body-span").innerHTML);
 }
 
-function BetOnPlayer(player) {
-    var currentValue = document.getElementById(player.name + "-label").innerHtml;
-    if(currentValue = null || currentValue == "") {
-        currentValue = 0;
+function BetOnPlayer(i) {
+    console.log("i: " + i);
+    currentGame.players.sort(
+        function(player1, player2){
+            return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
+        }
+    );
+
+    var player = currentGame.players[i];
+
+    console.log("player name from i: " + player.name);
+    var currentValue = document.getElementById(player.color + "-label").innerHTML;
+    console.log("currentValue: " + currentValue);
+    var parsed = parseInt(currentValue);
+    if (isNaN(parsed)) {
+        parsed = 0;
     }
-    document.getElementById(player.name + "-label").innerHtml = currentValue + 1;
+    console.log("parsedValue: " + parsed);
+
+    var newValue = parsed;
+
+    if(!(parsed == 0 && bettingLocationsCount >= 2)) {
+
+        if(myTotalBet < 2) {
+            console.log("free bet");
+            newValue = parsed + 1;
+            myTotalBet += 1;
+
+            if(parsed == 0) {
+                bettingLocationsCount++;
+            }
+        }
+        else if(currentPlayer.money > 0) {
+            console.log("paid bet");
+            newValue = parsed + 1;
+            currentPlayer.money -= 1;
+            myTotalBet += 1;
+
+            if(parsed == 0) {
+                bettingLocationsCount++;
+            }
+        }
+    }
+
+    console.log("newValue: " + newValue);
+    document.getElementById(player.color + "-label").innerHTML = newValue;
 }
 
 function ClearBets() {
     for(var i = 0; i < currentGame.players.length; i++) {
         var player = currentGame.players[i];
-        document.getElementById(player.name + "-label").innerHtml += "";
+        document.getElementById(player.color + "-label").innerHTML = 0;
     }
+    currentPlayer.money = moneyAtStartOfBetting;
+    myTotalBet = 0;
+    bettingLocationsCount = 0;
 }
 
 function SendBets() {
     console.log("Sending Bets Is Not Complete!");
+    currentPlayer.money = 10;
 }
 
 function MyPlayerIsMissing() {
