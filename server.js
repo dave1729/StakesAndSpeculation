@@ -3,8 +3,8 @@ var currentQuestionIndex = -1;
 
 function UseThisScreenAsGameBoard() {
     HideUnusedButtons();
-    document.getElementById("body-span").innerHTML = '<br><button type="button" id="next-turn-button" onclick="HandleEndOfTurn()" >All Players Are In!</button>' +
-        '<image id="game-board-image" src="game-board.png" alt="Game board with several horizontal segments." width="500" height="350"></image>';
+    document.getElementById("body-span").innerHTML = '<br><button type="button" id="next-turn-button" onclick="HandleEndOfTurn()" >All Players Are In!</button>';
+     ////   '<image id="game-board-image" src="game-board.png" alt="Game board with several horizontal segments." width="500" height="350"></image>';
 
     shuffle(riddles);
     var selectedRiddles = selectRandomElements(riddles, DefaultRiddlesPerGame);
@@ -39,13 +39,42 @@ function HandleEndOfTurn() {
     }
     else if(currentGame.waitingOn == "bets") {
         console.log("End Of Turn After Bets Is Not Complete!");
-        ////currentGame.waitingOn = "answers";
-        ////currentGame.questionIndex++;
+        DisplayAnswersForVoting();
+        setTimeout(CalculateResults, 2000);
+        currentGame.waitingOn = "answers";
+        currentGame.questionIndex++;
     }
 
     console.log("Saving Current Game");
     SaveCurrentGame();
     SaveGames();
+}
+
+function CalculateResults() {
+    var correctColor = null;
+    var winningMultiplier = 3;
+    var correctAnswer = currentGame.riddles[currentGame.questionIndex];
+
+    currentGame.players.sort(
+        function(player1, player2){
+            return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
+        }
+    );
+
+    for(var i = currentGame.players.length - 1; i >= 0; i--) {
+        var thisAnswer = currentGame.players[i].answers[currentGame.questionIndex];
+        if(thisAnswer < correctAnswer) {
+            correctColor = currentGame.players[i].color;
+        }
+    }
+
+    for( var i = 0; i < currentGame.players.length; i++) {
+        for (var j = 0; j < currentGame.players[i].bets.length; j++) {
+            if(currentGame.players[i].bets[j].color == correctColor) {
+                currentGame.winnings[currentGame.players[i].color] = parseInt(currentGame.players[i].bets[j].amount) * winningMultiplier;
+            }
+        }
+    }
 }
 
 function DisplayNextQuestion() {
@@ -68,11 +97,44 @@ function DisplayAnswersForVoting() {
         var answer = player.answers[currentGame.questionIndex];
         displayText += '<span style="color: ' + player.color + '">' + answer + "   " + '</span>';
     }
+
+    for(var i = 0; i < players.length; i++) {
+        var thisPlayer = players[i];
+        displayText += '<br>';
+        displayText += '<span style="color: ' + thisPlayer.color + '">' + thisPlayer.color + "'s bets: </span>";
+        for(var j = 0; j < players.length; j++) {
+            var thatPlayer = players[j];
+            var theBet = betFromPlayerOnThisTurn(thisPlayer, thatPlayer, currentGame.questionIndex);
+            if(theBet != null) {
+                displayText += '<span style="color: ' + thatPlayer.color + '">' + theBet.amount + "   " + '</span>';
+            } else {
+                displayText += '<span style="color: dark grey">' + "0   " + '</span>';
+            }
+            var answer = player.answers[currentGame.questionIndex];
+
+        }
+    }
     displayText += '</code>';
 
     if(document.getElementById('primary-display-text-label').innerHTML != displayText) {
         document.getElementById('primary-display-text-label').innerHTML = displayText;
     }
+}
+
+function betFromPlayerOnThisTurn(thisPlayer, thatPlayer, questionIndex) {
+    var betsOnThisTurn = thisPlayer.bets[questionIndex];
+    if(betsOnThisTurn == null) {
+        return null;
+    }
+
+    for(var i = 0; i < betsOnThisTurn.length; i++) {
+        var bet = betsOnThisTurn[i];
+        if(bet.playerColor == thatPlayer.color) {
+            return bet;
+        }
+    }
+
+    return null;
 }
 
 function AssignColorsToPlayers() {
@@ -161,7 +223,6 @@ function IsEndOfTurn() {
         return false;
     }
     else if(currentGame.waitingOn == "answers") {
-        var allPlayersHaveAnswered = true;
         for(var i = 0; i < currentGame.players.length; i++) {
             var currentPlayer = currentGame.players[i];
             var currentPlayerAnswer = currentPlayer.answers[currentGame.questionIndex];
@@ -178,7 +239,19 @@ function IsEndOfTurn() {
         return true;
     }
     else if(currentGame.waitingOn == "bets") {
+        for(var i = 0; i < currentGame.players.length; i++) {
+            var currentPlayer = currentGame.players[i];
+            var currentPlayerBets = currentPlayer.bets[currentGame.questionIndex];
+            if((currentPlayerBets == null) ||
+               !(currentPlayerBets.length >= 1)) {
 
+                console.log("Turn not over, player " + currentPlayer.name + " still hasn't bet. " +
+                "currentPlayerBets.length: " + currentPlayerBets.length);
+                return false;
+            }
+        }
+
+        return true;
     }
     else {
         alert("waitingOn something other than players, answers, or bets...");
