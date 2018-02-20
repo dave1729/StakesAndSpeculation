@@ -16,7 +16,6 @@ function SaveCurrentGame() {
             return;
         }
     }
-    alert("Couldn't find current game.");
 }
 
 function GetCurrentPlayer() {
@@ -28,10 +27,8 @@ function GetCurrentPlayer() {
                     return;
                 }
             }
-            alert("Couldn't find current player.");
         }
     }
-    alert("Couldn't find current game.");
 }
 
 function SaveCurrentPlayer() {
@@ -53,50 +50,62 @@ function SaveCurrentPlayer() {
                     return;
                 }
             }
-            alert("couldnt find current player 28454385");
         }
     }
-    alert("couldnt find current game 3124312344");
 }
 
-function GetRiddles() {
-    GetJson("10zvwh", "Riddles");
+function GetRiddles(callbackOnSuccess) {
+    console.log("GetRiddles()");
+    GetJson("Riddles", callbackOnSuccess);
 }
 
 function SaveRiddles() {
-    SaveJson("10zvwh", "Riddles");
+    console.log("SaveRiddles()");
+    SaveJson("Riddles");
 }
 
 function ClearSecondaryDisplay() {
-    document.getElementById("secondary-display-text-label").innerHTML = "";
+    console.log("ClearSecondaryDisplay()");
+    var element = document.getElementById("display-test-text-label");
+    element.innerHTML = "";
 }
 
 function DisplayRiddles() {
-    document.getElementById("secondary-display-text-label").innerHTML = JSON.stringify(riddles);
+    console.log("DisplayRiddles()");
+    var element = document.getElementById("display-test-text-label");
+    element.innerHTML = JSON.stringify(riddles);
 }
 
-function GetGames() {
-    GetJson("yymk1", "Games");
+function GetGames(callbackOnSuccess) {
+    console.log("GetGames()");
+    GetJson("Games", callbackOnSuccess);
 }
 
 function SaveGames() {
-    SaveJson("yymk1", "Games");
+    console.log("SaveGames()");
+    SaveJson("Games");
 }
 
 function EraseGames() {
+    console.log("EraseGames()");
     games = [];
-    SaveJson("yymk1", "Games");
+    SaveJson("Games");
 }
 
 function DisplayGames() {
-    document.getElementById("secondary-display-text-label").innerHTML = ////JSON.stringify(games) +
-        "<br>" + JSON.stringify(currentGame) + "<br>" + JSON.stringify(currentPlayer);
+    console.log("DisplayGames()");
+    var element = document.getElementById("display-test-text-label");
+    element.innerHTML = "";
+    for(var i = games.length-1; i >= 0; i--) {
+        element.innerHTML += JSON.stringify(games[i]) + "<br><br>";
+    }
 }
 
-function GetJson(myJsonId, objectTypeName, callbackOnSuccess) {
+function GetJson(objectTypeName, callbackOnSuccess) {
 
     var isAsync = true;
     var xmlHttp = new XMLHttpRequest();
+    var myJsonId = getMyJsonId(objectTypeName);
     var theUrl = "https://api.myjson.com/bins/" + myJsonId;
     xmlHttp.open( "GET", theUrl, isAsync ); // false for synchronous request true for async
     xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
@@ -121,8 +130,9 @@ function GetJson(myJsonId, objectTypeName, callbackOnSuccess) {
     xmlHttp.send( null );
 }
 
-function SaveJson(myJsonId, objectTypeName, callbackOnSuccess) {
+function SaveJson(objectTypeName, callbackOnSuccess) {
     var xmlHttp = new XMLHttpRequest();
+    var myJsonId = getMyJsonId(objectTypeName);
     var theUrl = "https://api.myjson.com/bins/" + myJsonId;
     xmlHttp.open( "PUT", theUrl, true ); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json");
@@ -148,5 +158,17 @@ function SaveJson(myJsonId, objectTypeName, callbackOnSuccess) {
     }
     else {
         alert("Error: objectTypeName wasn't Riddles or Games!");
+    }
+}
+
+function getMyJsonId(objectTypeName) {
+    if(objectTypeName.toUpperCase() == "RIDDLES") {
+        return "10zvwh";
+    }
+    else if(objectTypeName.toUpperCase() == "GAMES") {
+        return "yymk1";
+    }
+    else {
+        alert("Error: " + objectTypeName + " wasn't 'Riddles' or 'Games' when retrieving!");
     }
 }

@@ -5,6 +5,7 @@ function Game(selectedRiddles) {
     this.questionIndex = -1;
     this.waitingOn = "players";
     this.riddles = selectedRiddles;
+    this.winnings = {};
 }
 
 Game.prototype.addAnswer = function(currentPlayer, answer) {

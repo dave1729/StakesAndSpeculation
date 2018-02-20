@@ -1,29 +1,33 @@
 var DefaultRiddlesPerGame = 14;
-
 var riddles = [];
 var games = [];
 var currentGame = Game(null);
-GetGames();
+console.log("Before Initial Games and Riddles");
 GetRiddles();
+GetGames();
+console.log("After Initial Games and Riddles");
 
 function DisplayDebuggingButtons() {
-    ToggleVisibleAndHidden('get-riddles-button');
-    ToggleVisibleAndHidden('save-riddles-button');
-    ToggleVisibleAndHidden('display-riddles-button');
-    ToggleVisibleAndHidden('get-games-button');
-    ToggleVisibleAndHidden('save-games-button');
-    ToggleVisibleAndHidden('erase-games-button');
-    ToggleVisibleAndHidden('display-games-button');
-    ToggleVisibleAndHidden('display-test-text-label');
+     var buttons = document.getElementsByClassName("debugging-buttons");
+     for(var i = 0; i < buttons.length; i++) {
+         ToggleVisibleAndHidden(buttons[i]);
+     }
 }
 
-function ToggleVisibleAndHidden(elementId) {
-    var element = document.getElementById(elementId);
-
-    if(element.style.visibility === 'visible' || element.style.visibility === '') {
+function ToggleVisibleAndHidden(element) {
+    if(element.style.visibility == 'visible') {
         element.style.visibility = 'hidden';
     }
     else {
         element.style.visibility = 'visible';
     }
+}
+
+function commonContent() {
+var client = new XMLHttpRequest();
+    client.open('GET', '/StakesAndSpeculation/commonContent.html');
+    client.onreadystatechange = function() {
+        document.getElementById('content').innerHTML = client.responseText;
+    }
+    client.send();
 }
