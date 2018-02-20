@@ -1,11 +1,17 @@
 var currentQuestionIndex = -1;
 //enum: players,answers,bets
 
-function UseThisScreenAsGameBoard() {
-    HideUnusedButtons();
-    document.getElementById("body-span").innerHTML = '<br><button type="button" id="next-turn-button" onclick="HandleEndOfTurn()" >All Players Are In!</button>';
-     ////   '<image id="game-board-image" src="game-board.png" alt="Game board with several horizontal segments." width="500" height="350"></image>';
+function waitForGamesAndRiddles() {
+    if(riddles == null || games == null) {
+        console.log("Waiting (riddles == null|games == null): " + "(" + (riddles == null) + "|" + (games == null) + ")");
+        setTimeout(waitForGamesAndRiddles, 100);
+    }
+    else {
+        UseThisScreenAsGameBoard();
+    }
+}
 
+function UseThisScreenAsGameBoard() {
     shuffle(riddles);
     var selectedRiddles = selectRandomElements(riddles, DefaultRiddlesPerGame);
 
@@ -15,11 +21,6 @@ function UseThisScreenAsGameBoard() {
     document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
 
     setTimeout(PollForGameResultsAsServer, 3000);
-}
-
-function HideUnusedButtons() {
-    document.getElementById('start-new-game-button').style.visibility = 'hidden';
-    document.getElementById('join-game-button').style.visibility = 'hidden';
 }
 
 function HandleEndOfTurn() {
@@ -146,7 +147,6 @@ function AssignColorsToPlayers() {
 }
 
 function PollForGameResultsAsServer() {
-    document.getElementById("display-test-text-label").innerHTML = JSON.stringify(currentGame);
     GetGamesAsServer();
     setTimeout(PollForGameResultsAsServer, 2000);
 }
@@ -155,7 +155,7 @@ function GetGamesAsServer() {
     console.log("Saving question index");
     currentQuestionIndex = currentGame.questionIndex;
 
-    GetJson("yymk1", "Games", UpdateServerWithNewGames);
+    GetJson("Games", UpdateServerWithNewGames);
 }
 
 function UpdateServerWithNewGames() {
@@ -244,13 +244,9 @@ function IsEndOfTurn() {
             var currentPlayerBets = currentPlayer.bets[currentGame.questionIndex];
             if((currentPlayerBets == null) ||
                !(currentPlayerBets.length >= 1)) {
-
-                console.log("Turn not over, player " + currentPlayer.name + " still hasn't bet. " +
-                "currentPlayerBets.length: " + currentPlayerBets.length);
                 return false;
             }
         }
-
         return true;
     }
     else {

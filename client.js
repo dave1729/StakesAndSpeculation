@@ -10,16 +10,6 @@ function PollForGameResultsAsClient() {
 }
 
 function JoinGame() {
-    GetGames("async");
-    document.getElementById('start-new-game-button').style.visibility = 'hidden';
-    document.getElementById('join-game-button').style.visibility = 'hidden';
-    document.getElementById('get-riddles-button').style.visibility = 'hidden';
-    document.getElementById('save-riddles-button').style.visibility = 'hidden';
-    document.getElementById('display-riddles-button').style.visibility = 'hidden';
-    document.getElementById('get-games-button').style.visibility = 'hidden';
-    document.getElementById('save-games-button').style.visibility = 'hidden';
-    document.getElementById('erase-games-button').style.visibility = 'hidden';
-    document.getElementById('display-games-button').style.visibility = 'hidden';
     document.getElementById("body-span").innerHTML = '' +
     '<label id="game-id-input-label">Join Game with ID: </label><input type="text" id="game-id-input" >' +
     '<label id="player-id-input-label"> Using Player Name: </label><input type="text" id="player-id-input" >' +
@@ -77,7 +67,7 @@ function SendAnswer() {
     console.log("AnswerAsFloat: " + answerAsFloat);
 
     if(answerAsFloat == null) {
-        document.getElementById("second-display-text-label").innerHTML = answerValue + "... what is wrong with you?";
+        document.getElementById("secondary-display-text-label").innerHTML = answerValue + "... what is wrong with you?";
     }
 
     for(var i = 0; i < currentGame.questionIndex+1; i++) {
@@ -86,12 +76,13 @@ function SendAnswer() {
         }
     }
 
+    document.getElementById("secondary-display-text-label").innerHTML = "Answer Sent";
     SaveCurrentPlayer();
     SaveGames();
 }
 
 function GetGamesAsClient() {
-    GetJson("yymk1", "Games", UpdatePlayerOnBackend);
+    GetJson("Games", UpdatePlayerOnBackend);
 }
 
 function UpdatePlayerOnBackend() {
@@ -114,10 +105,8 @@ function UpdatePlayerOnBackend() {
             bettingButtonsCreated = true;
             myTotalBet = 0;
             bettingLocationsCount = 0;
-            moneyAtStartOfBetting = currentPlayer.money;
-        }
-        else {
-
+            moneyAtStartOfBetting = parseInt(currentPlayer.money) + parseInt(currentGame.winnings[currentPlayer.color]);
+            currentPlayer.money = moneyAtStartOfBetting;
         }
     }
     else {
@@ -147,7 +136,7 @@ function CreateBettingButtonsAndLabels() {
     bettingButtonsHtml += '<br><button type="button" id="clear-bets-button" onclick="ClearBets()" >Clear Bets</button>';
     bettingButtonsHtml += '<button type="button" id="send-bets-button" onclick="SendBets()" >Send Bets</button>';
 
-    document.getElementById("body-span").innerHTML += bettingButtonsHtml;
+    document.getElementById("body-span").innerHTML = bettingButtonsHtml;
     console.log(document.getElementById("body-span").innerHTML);
 }
 
@@ -164,14 +153,10 @@ function BetOnPlayer(i) {
     console.log("player name from i: " + player.name);
     var currentValue = document.getElementById(player.color + "-label").innerHTML;
     console.log("currentValue: " + currentValue);
-    var parsed = parseInt(currentValue);
-    if (isNaN(parsed)) {
-        parsed = 0;
-    }
+    var parsed = parseIntOrDefault(currentValue, 0);
     console.log("parsedValue: " + parsed);
 
     var newValue = parsed;
-
     if(!(parsed == 0 && bettingLocationsCount >= 2)) {
 
         if(myTotalBet < 2) {
@@ -209,9 +194,38 @@ function ClearBets() {
     bettingLocationsCount = 0;
 }
 
+function parseIntOrDefault(numberToParse, defaultValue) {
+    var parsed = parseInt(numberToParse);
+    if (isNaN(parsed)) {
+        parsed = defaultValue;
+    }
+
+    return parsed;
+}
+
 function SendBets() {
-    console.log("Sending Bets Is Not Complete!");
-    currentPlayer.money = 10;
+    for(var i = 0; i <= currentGame.questionIndex; i++) {
+        if(currentPlayer.bets[i] == null) {
+            currentPlayer.bets[i] = [];
+        }
+    }
+
+    var betLocationsCount = 0;
+    for(var i = 0; i < currentGame.players.length; i++) {
+        if(betLocationsCount < 2) {
+            var player = currentGame.players[i];
+            var betAsString = document.getElementById(player.color + "-label").innerHTML;
+            var bet = parseIntOrDefault(betAsString, 0);
+            if(bet > 0) {
+                currentPlayer.bets[currentGame.questionIndex].push(new Bet(player.color, bet));
+                betLocationsCount++;
+            }
+        }
+    }
+
+    document.getElementById("clear-bets-button").style.visibility = 'hidden';
+    SaveCurrentPlayer();
+    SaveGames();
 }
 
 function MyPlayerIsMissing() {
