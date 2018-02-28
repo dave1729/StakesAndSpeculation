@@ -1,3 +1,6 @@
 .debugging-buttons {
     visibility: hidden;
 }
+.game-display {
+    font-size: 35px;
+}

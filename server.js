@@ -159,7 +159,7 @@ function GetGamesAsServer() {
 }
 
 function UpdateServerWithNewGames() {
-    GetCurrentGame();
+    currentGame = GetCurrentGame();
 
     console.log("Restoring question index");
     currentGame.questionIndex = currentQuestionIndex;
