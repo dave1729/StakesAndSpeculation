@@ -6,6 +6,12 @@ var bettingLocationsCount = 0;
 
 function PollForGameResultsAsClient() {
     GetGamesAsClient();
+    var playerFromServer = GetCurrentPlayer();
+    if(!firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer)) {
+        console.log("Player found not fully updated, updating.");
+        SaveCurrentPlayer();
+        SaveGames();
+    }
     setTimeout(PollForGameResultsAsClient, 3000);
 }
 
@@ -87,7 +93,7 @@ function GetGamesAsClient() {
 
 function UpdatePlayerOnBackend() {
     console.log("Updating Current Game from Server.");
-    GetCurrentGame();
+    currentGame = GetCurrentGame();
     if (MyPlayerIsMissing()){
         console.log("Player is missing, Adding Player.");
         SaveCurrentPlayer();
@@ -95,7 +101,7 @@ function UpdatePlayerOnBackend() {
     }
     else if (currentPlayer.color == null) {
         console.log("Waiting for player color to be assigned.");
-        GetCurrentPlayer();
+        currentPlayer = GetCurrentPlayer();
     }
     else if(currentGame.waitingOn == "bets") {
         if(!bettingButtonsCreated) {
@@ -108,6 +114,9 @@ function UpdatePlayerOnBackend() {
             moneyAtStartOfBetting = parseInt(currentPlayer.money) + parseInt(currentGame.winnings[currentPlayer.color]);
             currentPlayer.money = moneyAtStartOfBetting;
         }
+    }
+    else if(currentGame.waitingOn == "answers") {
+        ShowAnswerButtonWithTimeout();
     }
     else {
         console.log("Updating game, not overwriting player.");

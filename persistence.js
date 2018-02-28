@@ -3,8 +3,7 @@ function GetCurrentGame() {
 
     for(var i = games.length-1; i >= 0; i--) {
         if(games[i].id == currentGame.id) {
-            currentGame = games[i];
-            return;
+            return games[i];
         }
     }
 }
@@ -19,12 +18,13 @@ function SaveCurrentGame() {
 }
 
 function GetCurrentPlayer() {
+    if(currentGame == null) return;
+
     for(var i = games.length-1; i >= 0; i--) {
         if(games[i].id == currentGame.id) {
             for(var j = games[i].players.length-1; j >= 0; j--) {
                 if(games[i].players[j].name == currentPlayer.name) {
-                    currentPlayer = games[i].players[j];
-                    return;
+                    return games[i].players[j];
                 }
             }
         }
@@ -34,11 +34,9 @@ function GetCurrentPlayer() {
 function SaveCurrentPlayer() {
     if(currentGame == null) return;
 
-    if(currentGame != null) {
-        for(var j = currentGame.players.length-1; j >= 0; j--) {
-            if(currentGame.players[j].name == currentPlayer.name) {
-                currentGame.players[j] = currentPlayer;
-            }
+    for(var j = currentGame.players.length-1; j >= 0; j--) {
+        if(currentGame.players[j].name == currentPlayer.name) {
+            currentGame.players[j] = currentPlayer;
         }
     }
 
@@ -59,9 +57,9 @@ function GetRiddles(callbackOnSuccess) {
     GetJson("Riddles", callbackOnSuccess);
 }
 
-function SaveRiddles() {
+function SaveRiddles(callbackOnSuccess) {
     console.log("SaveRiddles()");
-    SaveJson("Riddles");
+    SaveJson("Riddles", callbackOnSuccess);
 }
 
 function ClearSecondaryDisplay() {
@@ -81,15 +79,15 @@ function GetGames(callbackOnSuccess) {
     GetJson("Games", callbackOnSuccess);
 }
 
-function SaveGames() {
+function SaveGames(callbackOnSuccess) {
     console.log("SaveGames()");
-    SaveJson("Games");
+    SaveJson("Games", callbackOnSuccess);
 }
 
-function EraseGames() {
+function EraseGames(callbackOnSuccess) {
     console.log("EraseGames()");
     games = [];
-    SaveJson("Games");
+    SaveJson("Games", callbackOnSuccess);
 }
 
 function DisplayGames() {

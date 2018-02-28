@@ -7,11 +7,10 @@ function Riddle(riddleAsArray) {
    this.sourcename = riddleAsArray[5];
    this.source = riddleAsArray[6];
    this.sourcetype = riddleAsArray[7];
-   this.sourceyear = riddleAsArray[8];
+   this.sourcedate = riddleAsArray[8];
    this.creationdate = riddleAsArray[9];
    this.createdby = riddleAsArray[10];
    this.lastuseddate = riddleAsArray[11];
-   this.questionIndex = riddleAsArray[12];
 }
 
 Riddle.prototype.addGroup = function(newGroupName, ctx) {
