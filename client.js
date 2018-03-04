@@ -4,24 +4,17 @@ var myTotalBet = 0;
 var moneyAtStartOfBetting = -1;
 var bettingLocationsCount = 0;
 
-function PollForGameResultsAsClient() {
-    GetGamesAsClient();
-    var playerFromServer = GetCurrentPlayer();
-    if(!firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer)) {
-        console.log("Player found not fully updated, updating.");
-        SaveCurrentPlayer();
-        SaveGames();
-    }
-    setTimeout(PollForGameResultsAsClient, 3000);
+function GetGamesAsClient() {
+    GetJson("Games", UpdatePlayerOnBackend);
 }
 
-function JoinGame() {
+function JoinGameMenu() {
     document.getElementById("body-span").innerHTML = '' +
     '<label id="game-id-input-label">Join Game with ID: </label><input type="text" id="game-id-input" >' +
     '<label id="player-id-input-label"> Using Player Name: </label><input type="text" id="player-id-input" >' +
     '<button type="button" id="submit-input-button" onclick="SendInput()" >Join Game</button>';
 
-    setTimeout(PollForGameResultsAsClient, 5000);
+    GetGamesAsClient();
 }
 
 function SendInput() {
@@ -31,24 +24,24 @@ function SendInput() {
     //set the right game
     for(var i = games.length-1; i >= 0; i--) {
         if(games[i].id === gameId) {
-            currentPlayer = new Player(playerName, "blue");
+            currentPlayer = new Player(playerName);
             games[i].players.push(currentPlayer);
             currentGame = games[i];
 
-            SaveGames();
-            setTimeout(ShowAnswerButtonWithTimeout, 500);
+            SaveGames(ShowAnswerButton);
             return;
         }
     }
     alert("Couldn't find you're game, check the ID and try again.");
-    GetGamesAsClient();
 }
 
-function ShowAnswerButtonWithTimeout() {
-    document.getElementById("body-span").innerHTML = '' +
-            '<label id="answer-input-label">Answer: </label><input type="text" id="answer-input" >' +
-            '<button type="button" color="' + currentPlayer.color + '" id="answer-input-button" onclick="SendAnswer()" >Submit</button>';
-    GetGamesAsClient();
+function ShowAnswerButton() {
+    var displayText = '' +
+            '<label id="answer-input-label">Answer: </label><input id="answer-input" type="text">' +
+            '<button type="button" color="' + currentPlayer.color + '" id="answer-input-button" onclick="SendAnswer()">Submit</button>';
+
+    updateMoney();
+    updateElementWithNewHtml("body-span", displayText, null);
 }
 
 function SendAnswer() {
@@ -64,13 +57,13 @@ function SendAnswer() {
     }
 
     var answerValue = document.getElementById("answer-input").value;
-    console.log("AnswerValue: " + answerValue);
+    logDetailed("AnswerValue: " + answerValue);
 
     var answerAfterReplace = answerValue.replace(/[^0-9.]+/g, '');
-    console.log("AnswerAfterReplace: " + answerAfterReplace);
+    logDetailed("AnswerAfterReplace: " + answerAfterReplace);
 
     var answerAsFloat = parseFloat(answerAfterReplace);
-    console.log("AnswerAsFloat: " + answerAsFloat);
+    logDetailed("AnswerAsFloat: " + answerAsFloat);
 
     if(answerAsFloat == null) {
         document.getElementById("secondary-display-text-label").innerHTML = answerValue + "... what is wrong with you?";
@@ -87,41 +80,43 @@ function SendAnswer() {
     SaveGames();
 }
 
-function GetGamesAsClient() {
-    GetJson("Games", UpdatePlayerOnBackend);
-}
-
 function UpdatePlayerOnBackend() {
-    console.log("Updating Current Game from Server.");
+    var waitingOnStage = currentGame == null ? "":currentGame.waitingOn;
+    log("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
     currentGame = GetCurrentGame();
     if (MyPlayerIsMissing()){
-        console.log("Player is missing, Adding Player.");
+        logDetailed("Player is missing, Adding Player.");
         SaveCurrentPlayer();
         SaveGames();
     }
     else if (currentPlayer.color == null) {
-        console.log("Waiting for player color to be assigned.");
+        logDetailed("Waiting for player color to be assigned.");
         currentPlayer = GetCurrentPlayer();
     }
     else if(currentGame.waitingOn == "bets") {
-        if(!bettingButtonsCreated) {
-            console.log("before labels and buttons");
-            CreateBettingButtonsAndLabels();
-            console.log("after labels and buttons");
-            bettingButtonsCreated = true;
-            myTotalBet = 0;
-            bettingLocationsCount = 0;
-            moneyAtStartOfBetting = parseInt(currentPlayer.money) + parseInt(currentGame.winnings[currentPlayer.color]);
-            currentPlayer.money = moneyAtStartOfBetting;
-        }
+        myTotalBet = 0;
+        bettingLocationsCount = 0;
+        moneyAtStartOfBetting = parseInt(currentPlayer.money) + parseInt(currentGame.winnings[currentPlayer.color]);
+        currentPlayer.money = moneyAtStartOfBetting;
+        CreateBettingButtonsAndLabels();
     }
     else if(currentGame.waitingOn == "answers") {
-        ShowAnswerButtonWithTimeout();
+        ShowAnswerButton();
     }
     else {
-        console.log("Updating game, not overwriting player.");
+        logDetailed("Updating game, not overwriting player.");
         SaveCurrentPlayer();
     }
+
+    var playerFromServer = GetCurrentPlayer();
+    var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
+    if(updatedPlayerError != null) {
+        log("Player found not fully updated, updating. " + updatedPlayerError);
+        SaveCurrentPlayer();
+        SaveGames();
+    }
+
+    setTimeout(GetGamesAsClient, 3000);
 }
 
 function CreateBettingButtonsAndLabels() {
@@ -139,18 +134,18 @@ function CreateBettingButtonsAndLabels() {
         bettingButtonsHtml += '<button type="button" id="' + player.color +
             '-button" background.color="' + player.color +
             '" onclick="BetOnPlayer(' + i +
-            ')" >' + player.color + '</button>';
+            ')">' + player.color + '</button>';
     }
 
-    bettingButtonsHtml += '<br><button type="button" id="clear-bets-button" onclick="ClearBets()" >Clear Bets</button>';
-    bettingButtonsHtml += '<button type="button" id="send-bets-button" onclick="SendBets()" >Send Bets</button>';
+    bettingButtonsHtml += '<br><button id="clear-bets-button" type="button" onclick="ClearBets()">Clear Bets</button>';
+    bettingButtonsHtml += '<button id="send-bets-button" type="button" onclick="SendBets()">Send Bets</button>';
 
-    document.getElementById("body-span").innerHTML = bettingButtonsHtml;
-    console.log(document.getElementById("body-span").innerHTML);
+    updateMoney();
+    updateElementWithNewHtml("body-span", bettingButtonsHtml, 54);
 }
 
 function BetOnPlayer(i) {
-    console.log("i: " + i);
+    logDetailed("i: " + i);
     currentGame.players.sort(
         function(player1, player2){
             return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
@@ -159,17 +154,17 @@ function BetOnPlayer(i) {
 
     var player = currentGame.players[i];
 
-    console.log("player name from i: " + player.name);
+    logDetailed("player name from i: " + player.name);
     var currentValue = document.getElementById(player.color + "-label").innerHTML;
-    console.log("currentValue: " + currentValue);
+    logDetailed("currentValue: " + currentValue);
     var parsed = parseIntOrDefault(currentValue, 0);
-    console.log("parsedValue: " + parsed);
+    logDetailed("parsedValue: " + parsed);
 
     var newValue = parsed;
     if(!(parsed == 0 && bettingLocationsCount >= 2)) {
 
         if(myTotalBet < 2) {
-            console.log("free bet");
+            logDetailed("free bet");
             newValue = parsed + 1;
             myTotalBet += 1;
 
@@ -178,7 +173,7 @@ function BetOnPlayer(i) {
             }
         }
         else if(currentPlayer.money > 0) {
-            console.log("paid bet");
+            logDetailed("paid bet");
             newValue = parsed + 1;
             currentPlayer.money -= 1;
             myTotalBet += 1;
@@ -189,8 +184,17 @@ function BetOnPlayer(i) {
         }
     }
 
-    console.log("newValue: " + newValue);
+    updateMoney();
+    logDetailed("newValue: " + newValue);
     document.getElementById(player.color + "-label").innerHTML = newValue;
+}
+
+function updateMoney() {
+    var money = currentPlayer == null ? "0" :
+        currentPlayer.money == null ? "0" :
+        isNaN(currentPlayer.money) ? "0" :
+        currentPlayer.money;
+    updateElementWithNewHtml("primary-display-text-label", "Money: " + money, null);
 }
 
 function ClearBets() {

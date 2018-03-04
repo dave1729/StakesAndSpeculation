@@ -53,45 +53,45 @@ function SaveCurrentPlayer() {
 }
 
 function GetRiddles(callbackOnSuccess) {
-    console.log("GetRiddles()");
+    logDetailed("GetRiddles()");
     GetJson("Riddles", callbackOnSuccess);
 }
 
 function SaveRiddles(callbackOnSuccess) {
-    console.log("SaveRiddles()");
+    logDetailed("SaveRiddles()");
     SaveJson("Riddles", callbackOnSuccess);
 }
 
 function ClearSecondaryDisplay() {
-    console.log("ClearSecondaryDisplay()");
+    logDetailed("ClearSecondaryDisplay()");
     var element = document.getElementById("display-test-text-label");
     element.innerHTML = "";
 }
 
 function DisplayRiddles() {
-    console.log("DisplayRiddles()");
+    logDetailed("DisplayRiddles()");
     var element = document.getElementById("display-test-text-label");
     element.innerHTML = JSON.stringify(riddles);
 }
 
 function GetGames(callbackOnSuccess) {
-    console.log("GetGames()");
+    logDetailed("GetGames()");
     GetJson("Games", callbackOnSuccess);
 }
 
 function SaveGames(callbackOnSuccess) {
-    console.log("SaveGames()");
+    logDetailed("SaveGames()");
     SaveJson("Games", callbackOnSuccess);
 }
 
 function EraseGames(callbackOnSuccess) {
-    console.log("EraseGames()");
+    logDetailed("EraseGames()");
     games = [];
     SaveJson("Games", callbackOnSuccess);
 }
 
 function DisplayGames() {
-    console.log("DisplayGames()");
+    logDetailed("DisplayGames()");
     var element = document.getElementById("display-test-text-label");
     element.innerHTML = "";
     for(var i = games.length-1; i >= 0; i--) {
@@ -108,7 +108,7 @@ function GetJson(objectTypeName, callbackOnSuccess) {
     xmlHttp.open( "GET", theUrl, isAsync ); // false for synchronous request true for async
     xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
         if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
-            console.log("Get returned DONE 200! " + xmlHttp.responseText.substr(0,50));
+            logDetailed("Get returned DONE 200! " + xmlHttp.responseText.substr(0,50));
             if(objectTypeName === "Riddles") {
                 riddles = JSON.parse(xmlHttp.responseText);
                 if(callbackOnSuccess != null) callbackOnSuccess();
@@ -122,7 +122,7 @@ function GetJson(objectTypeName, callbackOnSuccess) {
             }
         }
         else {
-            console.log("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
+            logDetailed("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
         }
     }
     xmlHttp.send( null );
@@ -136,21 +136,21 @@ function SaveJson(objectTypeName, callbackOnSuccess) {
     xmlHttp.setRequestHeader("Content-Type", "application/json");
     xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
         if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
-            console.log("Put Success " + xmlHttp.responseText.substr(0, 50));
+            logDetailed("Put Success " + xmlHttp.responseText.substr(0, 50));
             if(callbackOnSuccess != null) callbackOnSuccess();
         }
         else {
-            console.log("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
+            logDetailed("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);
         }
     }
 
     if(objectTypeName === "Riddles") {
-        console.log("Saving riddles");
+        logDetailed("Saving riddles");
         var json = JSON.stringify(riddles);
         xmlHttp.send( json );
     }
     else if(objectTypeName === "Games") {
-        console.log("Saving games");
+        logDetailed("Saving games");
         var json = JSON.stringify(games);
         xmlHttp.send( json );
     }

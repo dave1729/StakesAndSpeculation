@@ -174,16 +174,16 @@ InputManager.prototype.start = function () {
 //    }, false);
 
     this.currentgroup.ctx.canvas.addEventListener("mousemove", function (e) {
-        //console.log(e);
+        //logDetailed(e);
         if(that.currentgroup.isUsingMouse) {
 			that.currentgroup.mouseLocation = getXandY(e);
 		}
     }, false);
 
 //    this.currentgroup.ctx.canvas.addEventListener("mousewheel", function (e) {
-//        //console.log(e);
+//        //logDetailed(e);
 //        that.wheel = e;
-//        //console.log("Click Event - X,Y " + e.clientX + ", " + e.clientY + " Delta " + e.deltaY);
+//        //logDetailed("Click Event - X,Y " + e.clientX + ", " + e.clientY + " Delta " + e.deltaY);
 //    }, false);
 
     this.currentgroup.ctx.canvas.addEventListener("keydown", function (e) {
@@ -196,8 +196,8 @@ InputManager.prototype.start = function () {
 
     // this.ctx.canvas.addEventListener("keypress", function (e) {
         // that.chars[e.code] = true;
-        // console.log(e);
-        // console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
+        // logDetailed(e);
+        // logDetailed("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
     // }, false);
 //
 // this could be problematic....
@@ -209,7 +209,7 @@ InputManager.prototype.start = function () {
 		}
     }, false);
 
-    console.log('Input started');
+    logDetailed('Input started');
 }
 
 //Input Group, holds just  name and list of Inputs
