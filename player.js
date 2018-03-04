@@ -1,4 +1,4 @@
-function Player(playerName, playerColor) {
+function Player(playerName) {
   this.name = playerName;
   this.color = null;
   this.answers = [];
@@ -8,29 +8,32 @@ function Player(playerName, playerColor) {
 
 function firstPlayerUpToDateWithSecondPlayer(somePlayer, localCopyOfPlayer) {
     if(localCopyOfPlayer == null || localCopyOfPlayer.color == null) {
-        true;
+        return null;
     }
 
     if(localCopyOfPlayer.answers.length > somePlayer.answers.length) {
-        return false;
+        return "localCopyOfPlayer.answers.length " + localCopyOfPlayer.answers.length +
+         " > somePlayer.answers.length " + somePlayer.answers.length;
     }
 
     for(var i = 0; i < somePlayer.answers.length; i++) {
         if(localCopyOfPlayer.answers[i] != somePlayer.answers[i]) {
-            return false;
+            return "localCopyOfPlayer.answers[i] " + localCopyOfPlayer.answers[i] +
+                     " != somePlayer.answers[i] " + somePlayer.answers[i];
         }
     }
 
 
     if(localCopyOfPlayer.bets.length > somePlayer.bets.length) {
-        return false;
+            return "localCopyOfPlayer.bets.length " + localCopyOfPlayer.bets.length +
+                     " > somePlayer.bets.length " + somePlayer.bets.length;
     }
 
     for(var i = 0; i < somePlayer.bets.length; i++) {
         if(localCopyOfPlayer.bets[i] != somePlayer.bets[i]) {
-            return false;
+            return null;
         }
     }
 
-    return true;
+    return null;
 }

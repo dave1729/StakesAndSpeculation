@@ -3,7 +3,7 @@ var currentQuestionIndex = -1;
 
 function waitForGamesAndRiddles() {
     if(riddles == null || games == null) {
-        console.log("Waiting (riddles == null|games == null): " + "(" + (riddles == null) + "|" + (games == null) + ")");
+        logDetailed("Waiting (riddles == null|games == null): " + "(" + (riddles == null) + "|" + (games == null) + ")");
         setTimeout(waitForGamesAndRiddles, 100);
     }
     else {
@@ -15,6 +15,7 @@ function UseThisScreenAsGameBoard() {
     shuffle(riddles);
     var selectedRiddles = selectRandomElements(riddles, DefaultRiddlesPerGame);
 
+    log("Initialize CurrentGame.");
     currentGame = new Game(selectedRiddles);
     games.push(currentGame);
     SaveGames();
@@ -24,9 +25,9 @@ function UseThisScreenAsGameBoard() {
 }
 
 function HandleEndOfTurn() {
-    console.log("Handling End of Turn.");
+    log("Handling End of Turn. CurrentGame is waiting on " + currentGame.waitingOn);
     if(currentGame.waitingOn == "players") {
-        console.log("Assigning Colors");
+        logDetailed("Assigning Colors");
         AssignColorsToPlayers();
         document.getElementById('next-turn-button').innerHTML = "Turn Is Complete";
         currentGame.waitingOn = "answers";
@@ -39,14 +40,15 @@ function HandleEndOfTurn() {
         currentGame.waitingOn = "bets";
     }
     else if(currentGame.waitingOn == "bets") {
-        console.log("End Of Turn After Bets Is Not Complete!");
+        logDetailed("End Of Turn After Bets Is Not Complete!");
         DisplayAnswersForVoting();
         setTimeout(CalculateResults, 2000);
         currentGame.waitingOn = "answers";
         currentGame.questionIndex++;
+        DisplayNextQuestion();
     }
 
-    console.log("Saving Current Game");
+    logDetailed("Saving Current Game");
     SaveCurrentGame();
     SaveGames();
 }
@@ -80,6 +82,7 @@ function CalculateResults() {
 
 function DisplayNextQuestion() {
     var currentRiddle = currentGame.riddles[currentGame.questionIndex];
+    log("Current Riddle: " + currentRiddle);
     document.getElementById("secondary-display-text-label").innerHTML = "Question: " + currentRiddle.question + "(source: " + currentRiddle.sourceName + " as of " + currentRiddle.sourceYear + ")";
 }
 
@@ -92,6 +95,12 @@ function DisplayAnswersForVoting() {
             return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
         }
     );
+
+    var longest = 0;
+    for(var i = 0; i < players.length; i++) {
+        var length = players[i].answers[currentGame.questionIndex].length;
+    }
+    longest += 2;
 
     for(var i = 0; i < players.length; i++) {
         var player = players[i];
@@ -139,7 +148,7 @@ function betFromPlayerOnThisTurn(thisPlayer, thatPlayer, questionIndex) {
 }
 
 function AssignColorsToPlayers() {
-    var colors = [ "blue", "red", "fuchsia", "lime", "aqua" ]
+    var colors = [ "blue", "red", "fuchsia", "lime", "aqua", "blueviolet", "chocolate", "crimson", "coral", "indigo", "lawngreen", "orchid", "tomato" ]
     shuffle(colors);
     for(var i = 0; i < currentGame.players.length; i++) {
         currentGame.players[i].color = colors[i];
@@ -152,7 +161,7 @@ function PollForGameResultsAsServer() {
 }
 
 function GetGamesAsServer() {
-    console.log("Saving question index");
+    logDetailed("Saving question index");
     currentQuestionIndex = currentGame.questionIndex;
 
     GetJson("Games", UpdateServerWithNewGames);
@@ -161,7 +170,7 @@ function GetGamesAsServer() {
 function UpdateServerWithNewGames() {
     currentGame = GetCurrentGame();
 
-    console.log("Restoring question index");
+    logDetailed("Restoring question index");
     currentGame.questionIndex = currentQuestionIndex;
 
     var isEndOfTurn = IsEndOfTurn();
@@ -175,6 +184,7 @@ function UpdateServerWithNewGames() {
 }
 
 function UpdateBoard() {
+    log("Update Board. CurrentGame is waiting on " + currentGame.waitingOn);
     if(currentGame.waitingOn == "players") {
         DisplayPendingPlayerNames();
     }
@@ -189,12 +199,12 @@ function UpdateBoard() {
 function DisplayPendingPlayerNames() {
     var displayText = "Game ID: " + currentGame.id + "        Players: ";
     for(var i = 0; i < currentGame.players.length; i++) {
-        displayText += currentGame.players[i].name + "   ";
+        displayText += currentGame.players[i].name + ",   ";
     }
 
-    if(document.getElementById('primary-display-text-label').innerHTML != displayText) {
-        document.getElementById('primary-display-text-label').innerHTML = displayText;
-    }
+    if(currentGame.players.length > 0) displayText = displayText.substring(0, displayText.length - 4);
+
+    updateElementWithNewHtml('primary-display-text-label', displayText, null);
 }
 
 function DisplayPlayersWithAnswers() {
@@ -213,9 +223,7 @@ function DisplayPlayersWithAnswers() {
     }
     displayText += '</code>';
 
-    if(document.getElementById('primary-display-text-label').innerHTML != displayText) {
-        document.getElementById('primary-display-text-label').innerHTML = displayText;
-    }
+    updateElementWithNewHtml('primary-display-text-label', displayText, null);
 }
 
 function IsEndOfTurn() {
@@ -230,7 +238,7 @@ function IsEndOfTurn() {
                (currentPlayerAnswer == " ")||
                (currentPlayerAnswer == 0)) {
 
-                console.log("Turn not over, player " + currentPlayer.name + " answer is '" +
+                logDetailed("Turn not over, player " + currentPlayer.name + " answer is '" +
                 currentPlayerAnswer + "'");
                 return false;
             }
