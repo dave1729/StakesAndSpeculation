@@ -1,4 +1,4 @@
-var currentPlayer = Player(null, null);
+var currentPlayer = Player(null);
 var bettingButtonsCreated = false;
 var myTotalBet = 0;
 var moneyAtStartOfBetting = -1;
@@ -96,7 +96,7 @@ function UpdatePlayerOnBackend() {
     else if(currentGame.waitingOn == "bets") {
         myTotalBet = 0;
         bettingLocationsCount = 0;
-        moneyAtStartOfBetting = parseInt(currentPlayer.money) + parseInt(currentGame.winnings[currentPlayer.color]);
+        moneyAtStartOfBetting = getCurrentBalance();
         currentPlayer.money = moneyAtStartOfBetting;
         CreateBettingButtonsAndLabels();
     }
@@ -117,6 +117,25 @@ function UpdatePlayerOnBackend() {
     }
 
     setTimeout(GetGamesAsClient, 3000);
+}
+
+function getCurrentBalance() {
+    var money = 0;
+    var riddleIndex = currentGame.questionIndex;
+    for (var i = 0; i < riddleIndex; i++) {
+        var moneyToAdd = parseInt(currentPlayer.money[riddleIndex]);
+        if(!isNaN(moneyToAdd)) money += moneyToAdd;
+
+        var bet = currentPlayer.bets[i];
+        for (var j = 0; j < bet.length; j++) {
+            var moneyToSubtract = parseInt(bet[j]);
+            if(!isNaN(moneyToSubtract)) money -= moneyToSubtract;
+        }
+
+        var winningsToAdd = parseInt(currentPlayer.winnings[riddleIndex]);
+        if(!isNaN(winningsToAdd)) money += winningsToAdd;
+    }
+    return money;
 }
 
 function CreateBettingButtonsAndLabels() {
@@ -145,7 +164,7 @@ function CreateBettingButtonsAndLabels() {
 }
 
 function BetOnPlayer(i) {
-    logDetailed("i: " + i);
+    log("Betting on i: " + i);
     currentGame.players.sort(
         function(player1, player2){
             return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
@@ -154,17 +173,20 @@ function BetOnPlayer(i) {
 
     var player = currentGame.players[i];
 
-    logDetailed("player name from i: " + player.name);
+    log("player name from i: " + player.name);
     var currentValue = document.getElementById(player.color + "-label").innerHTML;
-    logDetailed("currentValue: " + currentValue);
+    log("currentValue: " + currentValue);
     var parsed = parseIntOrDefault(currentValue, 0);
-    logDetailed("parsedValue: " + parsed);
+    log("parsedValue: " + parsed);
 
     var newValue = parsed;
-    if(!(parsed == 0 && bettingLocationsCount >= 2)) {
+    var isNotFirstBetForThisPlayerThisTurn = !(parsed == 0);
+    var haventBetOnMaxPlayerNumber = bettingLocationsCount < 2;
+    var stillMoneyToBet = currentPlayer.money > 0;
+    if(isNotFirstBetForThisPlayerThisTurn || haventBetOnMaxPlayerNumber) {
 
         if(myTotalBet < 2) {
-            logDetailed("free bet");
+            log("free bet");
             newValue = parsed + 1;
             myTotalBet += 1;
 
@@ -173,7 +195,7 @@ function BetOnPlayer(i) {
             }
         }
         else if(currentPlayer.money > 0) {
-            logDetailed("paid bet");
+            log("paid bet");
             newValue = parsed + 1;
             currentPlayer.money -= 1;
             myTotalBet += 1;
@@ -185,7 +207,7 @@ function BetOnPlayer(i) {
     }
 
     updateMoney();
-    logDetailed("newValue: " + newValue);
+    log("newValue: " + newValue);
     document.getElementById(player.color + "-label").innerHTML = newValue;
 }
 
