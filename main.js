@@ -36,8 +36,8 @@ function updateElementWithNewHtml(elementName, innerHtml, matchLength) {
     var currentInnerHtml = document.getElementById(elementName).innerHTML;
     matchLength = matchLength != null ? parseInt(matchLength) : innerHtml.length;
     if(currentInnerHtml.substring(0, matchLength) != innerHtml.substring(0, matchLength)) {
-        log("Changing Body Span: " + currentInnerHtml.substring(0, matchLength));
-        log("Changing Body Span: " + innerHtml.substring(0, matchLength));
+        logDetailed("Changing Body Span: " + currentInnerHtml.substring(0, matchLength));
+        logDetailed("Changing Body Span: " + innerHtml.substring(0, matchLength));
         document.getElementById(elementName).innerHTML = innerHtml;
     }
 }

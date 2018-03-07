@@ -71,7 +71,10 @@ function ClearSecondaryDisplay() {
 function DisplayRiddles() {
     logDetailed("DisplayRiddles()");
     var element = document.getElementById("display-test-text-label");
-    element.innerHTML = JSON.stringify(riddles);
+    element.innerHTML = "";
+    for (var i = 0; i < riddles.length; i++) {
+        element.innerHTML += JSON.stringify(riddles[i]) + "<br>";
+    }
 }
 
 function GetGames(callbackOnSuccess) {
@@ -94,6 +97,9 @@ function DisplayGames() {
     logDetailed("DisplayGames()");
     var element = document.getElementById("display-test-text-label");
     element.innerHTML = "";
+
+    if (currentPlayer != null && currentPlayer != undefined) element.innerHTML += JSON.stringify(currentPlayer) + "<br><br>";
+
     for(var i = games.length-1; i >= 0; i--) {
         element.innerHTML += JSON.stringify(games[i]) + "<br><br>";
     }

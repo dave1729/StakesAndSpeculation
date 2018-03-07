@@ -53,7 +53,8 @@ function HandleEndOfTurn() {
 function CalculateResults() {
     var correctColor = null;
     var winningMultiplier = 3;
-    var correctAnswer = currentGame.riddles[currentGame.questionIndex];
+    var correctAnswer = parseInt(currentGame.riddles[currentGame.questionIndex]);
+    if(isNaN(correctAnswer)) alert("The Answer to this Question is not a number... Sorry.");
 
     currentGame.players.sort(
         function(player1, player2){
@@ -61,10 +62,14 @@ function CalculateResults() {
         }
     );
 
-    for(var i = currentGame.players.length - 1; i >= 0; i--) {
-        var thisAnswer = currentGame.players[i].answers[currentGame.questionIndex];
-        if(thisAnswer < correctAnswer) {
-            correctColor = currentGame.players[i].color;
+    for(var i = 0; i < currentGame.players.length; i++) {
+        try {
+            var thisAnswer = parseInt(currentGame.players[i].answers[currentGame.questionIndex]);
+            if(thisAnswer <= correctAnswer) {
+                correctColor = currentGame.players[i].color;
+            }
+        }
+        catch (err) {
         }
     }
 
@@ -91,7 +96,7 @@ function CalculateResults() {
 
 function DisplayNextQuestion() {
     var currentRiddle = currentGame.riddles[currentGame.questionIndex];
-    log("Current Riddle: " + currentRiddle);
+    log("Current Riddle: " + currentRiddle.toString());
     document.getElementById("secondary-display-text-label").innerHTML = "Question: " + currentRiddle.question + "(source: " + currentRiddle.sourceName + " as of " + currentRiddle.sourceYear + ")";
 }
 

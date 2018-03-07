@@ -12,35 +12,47 @@ function JoinGameMenu() {
     document.getElementById("body-span").innerHTML = '' +
     '<label id="game-id-input-label">Join Game with ID: </label><input type="text" id="game-id-input" >' +
     '<label id="player-id-input-label"> Using Player Name: </label><input type="text" id="player-id-input" >' +
-    '<button type="button" id="submit-input-button" onclick="SendInput()" >Join Game</button>';
+    '<button type="button" id="submit-input-button" onclick="GetGamesAndSendInput()" >Join Game</button>';
+}
 
-    GetGamesAsClient();
+function GetGamesAndSendInput() {
+    var gameId = document.getElementById("game-id-input").value.trim().toUpperCase();
+    var playerName = document.getElementById("player-id-input").value.trim();
+    log("Sending Player!");
+    //set the right game
+    for(var i = games.length-1; i >= 0; i--) {
+        log("games[i].id " + games[i].id + " == gameId " + gameId);
+        if(games[i].id == gameId) {
+            currentPlayer = new Player(playerName);
+            log("Creating currentPlayer: " + currentPlayer.toString());
+            games[i].players.push(currentPlayer);
+            currentGame = games[i];
+        }
+    }
+
+    ShowAnswerButton();
+    SaveGames(GetGamesAsClient);
 }
 
 function SendInput() {
-    var gameId = document.getElementById("game-id-input").value.toUpperCase();
-    var playerName = document.getElementById("player-id-input").value;
-
+    log("Sending Player!");
     //set the right game
     for(var i = games.length-1; i >= 0; i--) {
-        if(games[i].id === gameId) {
+        log("games[i].id " + games[i].id + " == gameId " + gameId);
+        if(games[i].id == currentGame.id) {
             currentPlayer = new Player(playerName);
+            log("Creating currentPlayer: " + currentPlayer.toString());
             games[i].players.push(currentPlayer);
             currentGame = games[i];
-
-            SaveGames(ShowAnswerButton);
-            return;
         }
     }
-    alert("Couldn't find you're game, check the ID and try again.");
 }
 
 function ShowAnswerButton() {
     var displayText = '' +
             '<label id="answer-input-label">Answer: </label><input id="answer-input" type="text">' +
-            '<button type="button" color="' + currentPlayer.color + '" id="answer-input-button" onclick="SendAnswer()">Submit</button>';
+            '<button type="button" id="answer-input-button" onclick="SendAnswer()">Submit</button>';
 
-    updateMoney();
     updateElementWithNewHtml("body-span", displayText, null);
 }
 
@@ -85,33 +97,53 @@ function UpdatePlayerOnBackend() {
     log("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
 
     var waitingOnChanged = gameStateChanged();
-    currentGame = GetCurrentGame();
-    if (MyPlayerIsMissing()){
-        logDetailed("Player is missing, Adding Player.");
-        SaveCurrentPlayer();
-        SaveGames();
+    if (currentPlayer == null){
+        log("Player is null on our end, Adding Player. currentGame.id: " + currentGame.id);
+        SendInput();
+    }
+    else if (MyPlayerIsMissing()){
+        log("Player is missing, Adding Player.");
+
+        //set the right game
+        for(var i = games.length-1; i >= 0; i--) {
+            if(games[i].id === currentGame.id) {
+                games[i].players.push(currentPlayer);
+                currentGame = games[i];
+
+                SaveGames();
+            }
+        }
     }
     else if (currentPlayer.color == null) {
-        logDetailed("Waiting for player color to be assigned.");
+        log("Waiting for player color to be assigned.");
         currentPlayer = GetCurrentPlayer();
     }
     else {
+        currentGame = GetCurrentGame();
         handleBetsAndAnswerStates(waitingOnChanged);
-    }
 
-    var playerFromServer = GetCurrentPlayer();
-    var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
-    if(updatedPlayerError != null) {
-        log("Player found not fully updated, updating. " + updatedPlayerError);
-        SaveCurrentPlayer();
-        SaveGames();
+        var playerFromServer = GetCurrentPlayer();
+        var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
+        if(updatedPlayerError != null) {
+            log("Player found not fully updated, updating. " + updatedPlayerError);
+            SaveCurrentPlayer();
+            SaveGames();
+        }
     }
 
     setTimeout(GetGamesAsClient, 3000);
 }
 
 function handleBetsAndAnswerStates(waitingOnChanged) {
-    if(currentGame.waitingOn == "bets") {
+    if(currentGame.waitingOn == "players") {
+        if(waitingOnChanged) {
+            ////ShowAnswerButton();
+        }
+
+        log("Waiting On Players... ");
+        updateElementWithNewHtml("primary-display-text-label", "Money: 0", null);
+    }
+    else if(currentGame.waitingOn == "bets") {
         if(waitingOnChanged) {
             myTotalBet = 0;
             bettingLocationsCount = 0;
@@ -122,10 +154,11 @@ function handleBetsAndAnswerStates(waitingOnChanged) {
     }
     else if(currentGame.waitingOn == "answers") {
         if(waitingOnChanged) {
-
+            ShowAnswerButton();
         }
-
-        ShowAnswerButton();
+        else {
+            updateElementWithNewHtml("primary-display-text-label", "Money: 0", null);
+        }
     }
 }
 
@@ -310,5 +343,6 @@ function MyPlayerIsMissing() {
             }
         }
     }
+    log("My player was found missing.");
     return true;
 }
