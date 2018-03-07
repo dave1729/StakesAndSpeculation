@@ -43,9 +43,6 @@ function HandleEndOfTurn() {
         logDetailed("End Of Turn After Bets Is Not Complete!");
         DisplayAnswersForVoting();
         setTimeout(CalculateResults, 2000);
-        currentGame.waitingOn = "answers";
-        currentGame.questionIndex++;
-        DisplayNextQuestion();
     }
 
     logDetailed("Saving Current Game");
@@ -71,13 +68,25 @@ function CalculateResults() {
         }
     }
 
+    var playerIndex = null;
     for( var i = 0; i < currentGame.players.length; i++) {
         for (var j = 0; j < currentGame.players[i].bets.length; j++) {
             if(currentGame.players[i].bets[j].color == correctColor) {
-                currentGame.winnings[currentGame.players[i].color] = parseInt(currentGame.players[i].bets[j].amount) * winningMultiplier;
+                if(currentGame.winnings[currentGame.players[i].color] == null) {
+                    currentGame.winnings[currentGame.players[i].color] = [];
+                }
+
+                var myWinnings = (parseInt(currentGame.players[i].bets[j].amount) * winningMultiplier);
+                currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex] = myWinnings;
             }
         }
     }
+
+    currentGame.waitingOn = "answers";
+    currentGame.questionIndex++;
+    DisplayNextQuestion();
+    SaveCurrentGame();
+    SaveGames();
 }
 
 function DisplayNextQuestion() {

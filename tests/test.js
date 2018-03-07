@@ -29,7 +29,13 @@ function test0() {
         testResult = "pass";
     }
 
-    return testResult + ": " + testName;
+    return testResult + " ; " + testName;
+}
+
+function test1() {
+    var x = [];
+    x[2] = 22;
+    console.log(x[2].toString());
 }
 
 function runTests() {
