@@ -44,13 +44,18 @@ function deleteRiddle() {
 }
 
 function updateRiddles() {
-    riddles.sort(
-        function(riddle1, riddle2){
-            return riddle1.id - riddle2.id;
-        }
-    );
+    if(riddles == null || riddles == undefined) {
+        riddles = [];
+    }
+    else {
+        riddles.sort(
+            function(riddle1, riddle2){
+                return riddle1.id - riddle2.id;
+            }
+        );
+    }
 
-    var lastId = riddles[riddles.length-1].id;
+    var lastId = riddles.length > 0 ? riddles[riddles.length-1].id : 0;
 
     var newRiddle = {};
     newRiddle.id = parseInt(lastId) + 1;
