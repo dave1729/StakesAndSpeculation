@@ -10,6 +10,7 @@
 <br>
 <div id='content'></div>
 </body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="tools/log.js"></script>
 <script type="text/javascript" src="list-tools.js"></script>
 <script type="text/javascript" src="riddle.js"></script>
@@ -21,5 +22,5 @@
 <script type="text/javascript">commonContent();</script>
 <script type="text/javascript" src="client.js"></script>
 <script type="text/javascript" src="inputmanager.js"></script>
-<script type="text/javascript">JoinGameMenu();</script>
+<script type="text/javascript">GetJson('Games', GetGamesAndSendInput);</script>
 </html>

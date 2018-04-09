@@ -5,20 +5,19 @@ var moneyAtStartOfBetting = -1;
 var bettingLocationsCount = 0;
 
 function GetGamesAsClient() {
+    log("Now Get Games.");
     GetJson("Games", UpdatePlayerOnBackend);
 }
 
-function JoinGameMenu() {
-    document.getElementById("body-span").innerHTML = '' +
-    '<label id="game-id-input-label">Join Game with ID: </label><input type="text" id="game-id-input" >' +
-    '<label id="player-id-input-label"> Using Player Name: </label><input type="text" id="player-id-input" >' +
-    '<button type="button" id="submit-input-button" onclick="GetGamesAndSendInput()" >Join Game</button>';
-}
-
 function GetGamesAndSendInput() {
-    var gameId = document.getElementById("game-id-input").value.trim().toUpperCase();
-    var playerName = document.getElementById("player-id-input").value.trim();
+    log("Initiating current game and player. ");
+    var gameId = getQueryString("gameId");
+    log("QueryValue: " + gameId);
+    var playerName = getQueryString("playerName");
+    log("Player Name: " + playerName);
+
     log("Sending Player!");
+    log("Games Count: " + games.length);
     //set the right game
     for(var i = games.length-1; i >= 0; i--) {
         log("games[i].id " + games[i].id + " == gameId " + gameId);
@@ -29,6 +28,8 @@ function GetGamesAndSendInput() {
             currentGame = games[i];
         }
     }
+
+    log("Current Game Set! Game ID: " + currentGame.id);
 
     ShowAnswerButton();
     SaveGames(GetGamesAsClient);
@@ -97,7 +98,7 @@ function UpdatePlayerOnBackend() {
     log("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
 
     var waitingOnChanged = gameStateChanged();
-    if (currentPlayer == null){
+    if (!currentPlayer){
         log("Player is null on our end, Adding Player. currentGame.id: " + currentGame.id);
         SendInput();
     }
@@ -278,6 +279,9 @@ function updateMoney() {
     var money = 0;
     try
     {
+        log(`MONEYCHECK: question index ${currentGame.questionIndex}
+        and currentPlayerMoney ${currentPlayer.money[currentGame.questionIndex]}
+        and ${parseInt(currentPlayer.money[currentGame.questionIndex])}`);
         money = parseInt(currentPlayer.money[currentGame.questionIndex]);
     }
     catch (err)

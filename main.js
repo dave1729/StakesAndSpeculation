@@ -7,6 +7,83 @@ GetRiddles();
 GetGames();
 logDetailed("After Initial Games and Riddles");
 
+function padEnd(initialString,targetLength,padString) {
+    targetLength = targetLength>>0; //floor if number or convert non-number to 0;
+    padString = String((typeof padString !== 'undefined' ? padString : ' '));
+    if(!initialString) {
+        return padString.repeat(targetLength);
+    }
+
+    if (initialString.length > targetLength) {
+        return String(initialString);
+    }
+    else {
+        targetLength = targetLength-initialString.length;
+        if (targetLength > padString.length) {
+            padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+        }
+        return String(initialString) + padString.slice(0,targetLength);
+    }
+}
+
+function getQueryString(field) {
+    var queryStrings = window.location.href.split('?')[1];
+    if(queryStrings) {
+        var pairsAsArray = queryStrings.split("&");
+        if(pairsAsArray) {
+            for(var i = 0; i < pairsAsArray.length; i++) {
+                var pair = pairsAsArray[i].split("=");
+                if(pair && pair[0].toUpperCase() === field.toUpperCase()) {
+                    return pair[1];
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function GetGamesThenGoToClientPage() {
+    log("Getting Games");
+    GetJson('Games', toClientPage);
+}
+
+function toClientPage() {
+    log("Getting ready to go to client page.");
+    gameId = document.getElementById('game-id-input').value;
+    var gameExists = doesGameExist(gameId);
+    name = document.getElementById('player-name-input').value;
+    document.getElementById('primary-display-text-label').innerHTML = "Test Text Should See...";
+    log("name " + name);
+    if(name && gameExists)
+    {
+        window.location = `client.html?playerName=${name}&gameId=${gameId}`;
+    }
+    else
+    {
+        var displayText = document.getElementById('primary-display-text-label');
+        displayText.innerHTML = "";
+        if(!name)
+        {
+            displayText.innerHTML += "You need like, a name dude... ";
+        }
+        if(!gameExists)
+        {
+            displayText.innerHTML += "That game doesn't exist.";
+        }
+    }
+}
+
+function doesGameExist(gameId)
+{
+     for(var i = 0; i < games.length; i++) {
+         log("gameId: " + games[i].id);
+         if(games[i].id === gameId) {
+             return true;
+         }
+     }
+     return false;
+}
+
 function DisplayDebuggingButtons() {
      var buttons = document.getElementsByClassName("debugging-buttons");
      for(var i = 0; i < buttons.length; i++) {

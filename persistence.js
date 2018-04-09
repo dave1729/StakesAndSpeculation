@@ -98,7 +98,12 @@ function DisplayGames() {
     var element = document.getElementById("display-test-text-label");
     element.innerHTML = "";
 
-    if (currentPlayer != null && currentPlayer != undefined) element.innerHTML += JSON.stringify(currentPlayer) + "<br><br>";
+    if(typeof currentPlayer !== 'undefined') {
+        if (currentPlayer) {
+            log("CurrentPlayer: " + currentPlayer);
+            element.innerHTML += JSON.stringify(currentPlayer) + "<br><br>";
+        }
+    }
 
     for(var i = games.length-1; i >= 0; i--) {
         element.innerHTML += JSON.stringify(games[i]) + "<br><br>";

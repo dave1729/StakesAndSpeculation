@@ -4,11 +4,14 @@
 <h1>Stakes and Speculation!</h1>
 <meta charset="utf-8"/>
 <br>
-<a href="server.html">Start New Game (make this screen the game board)</a>
-<br><br>
-<a href="client.html">Join Game</a>
+<a href="server.html?things=stuff">Start New Game (make this screen the game board)</a>
+<br><p id="primary-display-text-label" > </p><br>
+<label id="game-id-input-label">Join Game with ID: </label><input type="text" id="game-id-input" >
+<label id="player-name-input-label"> Using Player Name: </label><input type="text" id="player-name-input" >
+<a href="javascript:GetGamesThenGoToClientPage();">Join Game</a>
 <div id='content'></div>
 </body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="tools/log.js"></script>
 <script type="text/javascript" src="list-tools.js"></script>
 <script type="text/javascript" src="riddle.js"></script>
