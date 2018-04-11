@@ -33,9 +33,33 @@ function test0() {
 }
 
 function test1() {
-    var x = [];
-    x[2] = 22;
-    console.log(x[2].toString());
+    var multiplierArray = getWinningMultiplierArray(0);
+    log("winning multiplier array: " + multiplierArray);
+    var multiplierArray = getWinningMultiplierArray(1);
+    log("winning multiplier array: " + multiplierArray);
+    var multiplierArray = getWinningMultiplierArray(2);
+    log("winning multiplier array: " + multiplierArray);
+    var multiplierArray = getWinningMultiplierArray(3);
+    log("winning multiplier array: " + multiplierArray);
+    var multiplierArray = getWinningMultiplierArray(4);
+    log("winning multiplier array: " + multiplierArray);
+    var multiplierArray = getWinningMultiplierArray(5);
+    log("winning multiplier array: " + multiplierArray);
+    var multiplierArray = getWinningMultiplierArray(6);
+    log("winning multiplier array: " + multiplierArray);
+
+    var testName = "getWinningMultiplier";
+    var index = 1;
+    var array = getWinningMultiplierArray(5);
+
+    if (array[index] === 3) {
+        testResult = "pass";
+    }
+    else {
+        testResult = "fail, reason; WinningMultiplier is " + array[index] + " in " + array;
+    }
+
+    return testResult + " ; " + testName;
 }
 
 function runTests() {

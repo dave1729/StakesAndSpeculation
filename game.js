@@ -1,5 +1,9 @@
 function Game(selectedRiddles) {
-    this.id = Math.random().toString(36).replace(/[^a-z]+/g, '').toUpperCase().substr(0, 5);
+    this.id = getQueryString("gameId");
+    if(!this.id)
+    {
+        this.id = prompt("Could Not Get Game Id Automatically. Enter desired Game ID:");
+    }
     this.players = [];
     this.date = Date.now();
     this.questionIndex = -1;
