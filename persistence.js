@@ -1,8 +1,22 @@
 function GetCurrentGame() {
-     if(currentGame == null) return;
+    return GetCurrentGame(null);
+}
+
+function GetCurrentGame(theGameId) {
+    if(!theGameId && !currentGame) {
+        log("game id and current game are null");
+        return null;
+    }
+
+    if (!theGameId) {
+        log("game id only is null");
+        theGameId = currentGame.id;
+    }
 
     for(var i = games.length-1; i >= 0; i--) {
-        if(games[i].id == currentGame.id) {
+        log("Checking games " + games[i].id);
+        if(games[i].id == theGameId) {
+            log("Matched games " + games[i].id);
             return games[i];
         }
     }

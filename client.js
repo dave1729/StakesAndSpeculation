@@ -43,6 +43,7 @@ function SendInput() {
         if(games[i].id == currentGame.id) {
             currentPlayer = new Player(playerName);
             log("Creating currentPlayer: " + currentPlayer.toString());
+            // TODO: a player should only be added if there are no players by the same name
             games[i].players.push(currentPlayer);
             currentGame = games[i];
         }
@@ -350,3 +351,4 @@ function MyPlayerIsMissing() {
     log("My player was found missing.");
     return true;
 }
+log("client.js loaded");

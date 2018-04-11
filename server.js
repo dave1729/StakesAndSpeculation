@@ -2,13 +2,30 @@ var currentQuestionIndex = -1;
 //enum: players,answers,bets
 
 function waitForGamesAndRiddles() {
-    if(riddles == null || games == null) {
-        logDetailed("Waiting (riddles == null|games == null): " + "(" + (riddles == null) + "|" + (games == null) + ")");
-        setTimeout(waitForGamesAndRiddles, 100);
+    if(riddles.length < 1 || games.length < 1) {
+        logDetailed("Waiting (riddles == null|games == null): " + "(" + (!riddles) + "|" + (!games) + ")");
+        setTimeout(waitForGamesAndRiddles, 200);
     }
     else {
-        UseThisScreenAsGameBoard();
+        var gameId = getQueryString("gameId");
+        currentGame = GetCurrentGame(gameId);
+        log("Using the querystring found game: " + currentGame);
+        if(currentGame != null) {
+            log("Starting Existing Game using Game ID. gameId: " + currentGame.id);
+            SaveCurrentGame();
+            useGameThatAlreadyExist();
+        }
+        else {
+            log("Making a new Game using Game ID. gameId: " + gameId);
+            UseThisScreenAsGameBoard();
+        }
     }
+}
+
+function useGameThatAlreadyExist() {
+    document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
+    SaveGames();
+    setTimeout(PollForGameResultsAsServer, 3000);
 }
 
 function UseThisScreenAsGameBoard() {
@@ -19,8 +36,8 @@ function UseThisScreenAsGameBoard() {
     currentGame = new Game(selectedRiddles);
     games.push(currentGame);
     SaveGames();
-    document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
 
+    document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
     setTimeout(PollForGameResultsAsServer, 3000);
 }
 
@@ -45,7 +62,6 @@ function HandleEndOfTurn() {
     else if(currentGame.waitingOn == "bets") {
         log("End Of Turn After Bets Is Not Complete!");
         DisplayAnswersForVoting();
-        currentGame.questionIndex++;
         setTimeout(CalculateResults, 2000);
     }
 
@@ -54,9 +70,29 @@ function HandleEndOfTurn() {
     SaveGames();
 }
 
+function getWinningMultiplierArray(answersCount) {
+    if(answersCount < 1) {
+        return new Array(0);
+    }
+
+    var middleValue = answersCount % 2 === 0 ? 3 : 2;
+    var multiplierArray = new Array(answersCount);
+
+    multiplier = middleValue;
+    for (var i = Math.floor(answersCount/2); i < answersCount; i++) {
+        multiplierArray[i] = multiplier++;
+    }
+
+    var multiplier = middleValue;
+    for (var i = Math.floor((answersCount-1)/2); i >= 0; i--) {
+        multiplierArray[i] = multiplier++;
+    }
+
+    return multiplierArray;
+}
+
 function CalculateResults() {
     var correctColor = null;
-    var winningMultiplier = 3;
     var correctAnswer = parseInt(currentGame.riddles[currentGame.questionIndex].answer);
     log(`answer as string ${currentGame.riddles[currentGame.questionIndex].answer} and as int ${correctAnswer}`);
     if(isNaN(correctAnswer)) alert("The Answer to this Question is not a number... Sorry.");
@@ -67,31 +103,44 @@ function CalculateResults() {
         }
     );
 
+    var winningIndex = -1;
     for(var i = 0; i < currentGame.players.length; i++) {
         try {
             var thisAnswer = parseInt(currentGame.players[i].answers[currentGame.questionIndex]);
             if(thisAnswer <= correctAnswer) {
                 correctColor = currentGame.players[i].color;
+                winningIndex = i;
             }
         }
         catch (err) {
         }
     }
 
-    var playerIndex = null;
+    var winningMultipliers = getWinningMultiplierArray(currentGame.players.length);
+    log("Winning Multipliers: " + winningMultipliers);
+    var winningMultiplier = parseInt(winningMultipliers[winningIndex]);
+    log("Winning Multiplier: " + winningMultiplier);
+    log("correctColor: " + correctColor);
+
     for( var i = 0; i < currentGame.players.length; i++) {
         for (var j = 0; j < currentGame.players[i].bets.length; j++) {
-            if(currentGame.players[i].bets[j].color == correctColor) {
-                if(currentGame.winnings[currentGame.players[i].color] == null) {
+            if(currentGame.players[i].bets[j].playerColor == correctColor) {
+                if(!currentGame.winnings[currentGame.players[i].color]) {
                     currentGame.winnings[currentGame.players[i].color] = [];
                 }
-
-                var myWinnings = (parseInt(currentGame.players[i].bets[j].amount) * winningMultiplier);
+                if(!currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex]) {
+                    currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex] = [];
+                }
+                var bet = parseInt(currentGame.players[i].bets[j].amount);
+                var myWinnings = bet * winningMultiplier;
+                log(`winnings for ${currentGame.players[i].color} are ${myWinnings} = ${bet} * ${winningMultiplier}`);
                 currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex] = myWinnings;
             }
         }
     }
 
+
+    currentGame.questionIndex++;
     currentGame.waitingOn = "answers";
     DisplayNextQuestion();
     SaveCurrentGame();
@@ -285,3 +334,5 @@ function IsEndOfTurn() {
         alert("waitingOn something other than players, answers, or bets...");
     }
 }
+
+log("server.js loaded");

@@ -1,7 +1,7 @@
 var DefaultRiddlesPerGame = 7;
 var riddles = [];
 var games = [];
-var currentGame = Game(null);
+var currentGame = null;
 logDetailed("Before Initial Games and Riddles");
 GetRiddles();
 GetGames();
@@ -40,6 +40,11 @@ function getQueryString(field) {
         }
     }
     return null;
+}
+
+function GoToServerPage() {
+    var gameId = Math.random().toString(36).replace(/[^a-z]+/g, '').toUpperCase().substr(0, 5);
+    window.location = `server.html?gameId=${gameId}`;
 }
 
 function GetGamesThenGoToClientPage() {
@@ -136,3 +141,5 @@ function stringArraySizeMatch(stringArray) {
         }
     };
 }
+
+log("main.js loaded");
