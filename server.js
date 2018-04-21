@@ -1,10 +1,21 @@
 var currentQuestionIndex = -1;
+var nullGamesError = 0;
 //enum: players,answers,bets
 
 function waitForGamesAndRiddles() {
-    if(riddles.length < 1 || games.length < 1) {
-        logDetailed("Waiting (riddles == null|games == null): " + "(" + (!riddles) + "|" + (!games) + ")");
-        setTimeout(waitForGamesAndRiddles, 200);
+    log("Waiting for games and riddles... ");
+    if(!riddles || !games) {
+        nullGamesError++;
+
+        log("Waiting (riddles == null|games == null): " + "(" + (!riddles) + "|" + (!games) + ")");
+        setTimeout(waitForGamesAndRiddles, 300);
+
+        log("No Games Found From Server. Occurances: " + nullGamesError);
+        if(nullGamesError > 5) {
+            log("No Games Found. Saving Empty Games List To Server.");
+            games = [];
+            SaveGames();
+        }
     }
     else {
         var gameId = getQueryString("gameId");
@@ -17,7 +28,7 @@ function waitForGamesAndRiddles() {
         }
         else {
             log("Making a new Game using Game ID. gameId: " + gameId);
-            UseThisScreenAsGameBoard();
+            createNewGame();
         }
     }
 }
@@ -28,7 +39,7 @@ function useGameThatAlreadyExist() {
     setTimeout(PollForGameResultsAsServer, 3000);
 }
 
-function UseThisScreenAsGameBoard() {
+function createNewGame() {
     shuffle(riddles);
     var selectedRiddles = selectRandomElements(riddles, DefaultRiddlesPerGame);
 
@@ -121,22 +132,31 @@ function CalculateResults() {
     var winningMultiplier = parseInt(winningMultipliers[winningIndex]);
     log("Winning Multiplier: " + winningMultiplier);
     log("correctColor: " + correctColor);
+    DisplayGames();
+    var qi = currentGame.questionIndex;
 
     for( var i = 0; i < currentGame.players.length; i++) {
-        for (var j = 0; j < currentGame.players[i].bets.length; j++) {
-            if(currentGame.players[i].bets[j].playerColor == correctColor) {
-                if(!currentGame.winnings[currentGame.players[i].color]) {
-                    currentGame.winnings[currentGame.players[i].color] = [];
-                }
-                if(!currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex]) {
-                    currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex] = [];
-                }
-                var bet = parseInt(currentGame.players[i].bets[j].amount);
-                var myWinnings = bet * winningMultiplier;
-                log(`winnings for ${currentGame.players[i].color} are ${myWinnings} = ${bet} * ${winningMultiplier}`);
-                currentGame.winnings[currentGame.players[i].color][currentGame.questionIndex] = myWinnings;
+        log("Name: " + currentGame.players[i].name);
+        log("Color: " + currentGame.players[i].color);
+        log("BetCount: " + currentGame.players[i].bets.length);
+        log("BetCount: " + currentGame.players[i].bets.length);
+        var myWinnings = 0;
+        for (var k = 0; k < currentGame.players[i].bets[qi].length; k++) {
+            log("Checking if " + currentGame.players[i].bets[qi][k].playerColor + " == " + correctColor);
+            if(!currentGame.players[i].bets[qi]) {
+                currentGame.players[i].bets[qi] = [];
+            }
+
+            if(currentGame.players[i].bets[qi][k].playerColor == correctColor) {
+                var bet = parseInt(currentGame.players[i].bets[qi][k].amount);
+                myWinnings = bet * winningMultiplier;
+            }
+            else {
+                log("They arn't equal.");
             }
         }
+        log(`winnings for ${currentGame.players[i].color} are ${myWinnings} = ${bet} * ${winningMultiplier}`);
+        currentGame.winnings[currentGame.players[i].color][qi] = myWinnings;
     }
 
 
@@ -224,6 +244,14 @@ function AssignColorsToPlayers() {
     shuffle(colors);
     for(var i = 0; i < currentGame.players.length; i++) {
         currentGame.players[i].color = colors[i];
+    }
+
+    if(!currentGame.winnings) {
+        currentGame.winnings = new Object();
+    }
+
+    for(var i = 0; i < currentGame.players.length; i++) {
+        currentGame.winnings[currentGame.players[i].color] = [];
     }
 }
 
