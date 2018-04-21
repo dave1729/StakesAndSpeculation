@@ -4,12 +4,12 @@ function Game(selectedRiddles) {
     {
         this.id = prompt("Could Not Get Game Id Automatically. Enter desired Game ID:");
     }
-    this.players = [];
     this.date = Date.now();
     this.questionIndex = -1;
     this.waitingOn = "players";
+    this.players = [];
+    this.winnings = new Object();
     this.riddles = selectedRiddles;
-    this.winnings = {};
 }
 
 Game.prototype.addAnswer = function(currentPlayer, answer) {

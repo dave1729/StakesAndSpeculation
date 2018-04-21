@@ -87,7 +87,9 @@ function DisplayRiddles() {
     var element = document.getElementById("display-test-text-label");
     element.innerHTML = "";
     for (var i = 0; i < riddles.length; i++) {
-        element.innerHTML += JSON.stringify(riddles[i]) + "<br>";
+        var myString = JSON.stringify(riddles[i], null, 2);
+        var finalString = myString.replace(/\n/g, "<br>").replace(/ /g, "&nbsp");
+        element.innerHTML += finalString + "<br>";
     }
 }
 
@@ -115,12 +117,17 @@ function DisplayGames() {
     if(typeof currentPlayer !== 'undefined') {
         if (currentPlayer) {
             log("CurrentPlayer: " + currentPlayer);
-            element.innerHTML += JSON.stringify(currentPlayer) + "<br><br>";
+            var myString = JSON.stringify(currentPlayer, null, 2);
+            var finalString = myString.replace(/\n/g, "<br>").replace(/ /g, "&nbsp");
+            element.innerHTML += finalString + "<br><br>";
         }
     }
 
     for(var i = games.length-1; i >= 0; i--) {
-        element.innerHTML += JSON.stringify(games[i]) + "<br><br>";
+        var myString = JSON.stringify(games[i], null, 2);
+        ////var rawString = String.raw`${myString}`;
+        var finalString = myString.replace(/\n/g, "<br>").replace(/ /g, "&nbsp");
+        element.innerHTML += finalString + "<br><br>";
     }
 }
 

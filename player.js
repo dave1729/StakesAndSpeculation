@@ -7,6 +7,8 @@ function Player(playerName) {
 }
 
 function firstPlayerUpToDateWithSecondPlayer(somePlayer, localCopyOfPlayer) {
+    log("Comparing Players " + JSON.stringify(somePlayer) + " and " + JSON.stringify(localCopyOfPlayer));
+
     if(localCopyOfPlayer == null || localCopyOfPlayer.color == null) {
         return null;
     }
@@ -28,8 +30,8 @@ function firstPlayerUpToDateWithSecondPlayer(somePlayer, localCopyOfPlayer) {
 
     for(var i = 0; i < somePlayer.bets.length; i++) {
         if(localCopyOfPlayer.bets[i] != somePlayer.bets[i]) {
-            return "localCopyOfPlayer.bets[i] " + localCopyOfPlayer.bets[i] +
-                     " != somePlayer.bets[i] " + somePlayer.bets[i];
+            return "localCopyOfPlayer.bets[i] " + localCopyOfPlayer.bets[i].playerColor + localCopyOfPlayer.bets[i].amount +
+                     " != somePlayer.bets[i] " + somePlayer.bets[i].playerColor + somePlayer.bets[i].amount;
         }
     }
 

@@ -1,6 +1,6 @@
 var DefaultRiddlesPerGame = 7;
-var riddles = [];
-var games = [];
+var riddles = null;
+var games = null;
 var currentGame = null;
 logDetailed("Before Initial Games and Riddles");
 GetRiddles();

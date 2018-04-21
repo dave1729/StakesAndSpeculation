@@ -63,6 +63,8 @@ function SendAnswer() {
         currentPlayer.answers = [];
     }
 
+    log("Sending Answer. Start: " + JSON.stringify(currentPlayer.answers));
+
     if (currentPlayer.answers.length < currentGame.questionIndex + 1) {
         var voidAnswersToInsert = (currentGame.questionIndex + 1) - currentPlayer.answers.length;
         for(var i = 0; i < voidAnswersToInsert; i++) {
@@ -88,6 +90,8 @@ function SendAnswer() {
             currentPlayer.answers[i] = answerAsFloat;
         }
     }
+
+    log("Sending Answer. End: " + JSON.stringify(currentPlayer.answers));
 
     document.getElementById("secondary-display-text-label").innerHTML = "Answer Sent";
     SaveCurrentPlayer();
