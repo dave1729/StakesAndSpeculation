@@ -33,6 +33,8 @@ function test0() {
 }
 
 function test1() {
+    var testName = "getWinningMultiplier";
+
     var multiplierArray = getWinningMultiplierArray(0);
     log("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(1);
@@ -48,7 +50,6 @@ function test1() {
     var multiplierArray = getWinningMultiplierArray(6);
     log("winning multiplier array: " + multiplierArray);
 
-    var testName = "getWinningMultiplier";
     var index = 1;
     var array = getWinningMultiplierArray(5);
 
@@ -57,6 +58,32 @@ function test1() {
     }
     else {
         testResult = "fail, reason; WinningMultiplier is " + array[index] + " in " + array;
+    }
+
+    return testResult + " ; " + testName;
+}
+
+function test2() {
+    var testName = "subtraction operator";
+
+    var totalBets = parseIntOrDefault(2, 0);
+
+    log("totalBets: " + totalBets);
+    var totalWinnings = parseInt(6);
+
+    log("totalWinnings: " + totalWinnings);
+
+    var money = parseInt(totalWinnings) - parseInt(totalBets);
+
+    log("money: " + money);
+
+    var result = Math.max(money, 0);
+
+    if (result == 4) {
+        testResult = "pass";
+    }
+    else {
+        testResult = "fail, reason; result is " + result;
     }
 
     return testResult + " ; " + testName;
