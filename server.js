@@ -1,5 +1,6 @@
 var currentQuestionIndex = -1;
 var nullGamesError = 0;
+var firstPass = true;
 //enum: players,answers,bets
 
 function waitForGamesAndRiddles() {
@@ -52,7 +53,7 @@ function createNewGame() {
     setTimeout(PollForGameResultsAsServer, 3000);
 }
 
-function HandleEndOfTurn() {
+function HandleEndOfTurn(firstCallToFunction) {
     log("Handling End of Turn. CurrentGame is waiting on " + currentGame.waitingOn);
     if(currentGame.waitingOn == "players") {
         log("Assigning Colors");
@@ -71,9 +72,17 @@ function HandleEndOfTurn() {
         currentGame.waitingOn = "bets";
     }
     else if(currentGame.waitingOn == "bets") {
-        log("End Of Turn After Bets Is Not Complete!");
+        log("End Of Turn After Bets!");
         DisplayAnswersForVoting();
-        setTimeout(CalculateResults, 2000);
+        log("firstCallToFunction? " + firstCallToFunction);
+        if(firstCallToFunction) {
+            setTimeout(CalculateResults, 2000);
+        }
+    }
+    else if(currentGame.waitingOn == "gameover") {
+        log("Game Over!");
+        document.getElementById("primary-display-text-label").innerHTML = "Game Over!";
+        var winningPlayer = getWinningPlayer();
     }
 
     logDetailed("Saving Current Game");
@@ -132,7 +141,7 @@ function CalculateResults() {
     var winningMultiplier = parseInt(winningMultipliers[winningIndex]);
     log("Winning Multiplier: " + winningMultiplier);
     log("correctColor: " + correctColor);
-    DisplayGames();
+
     var qi = currentGame.questionIndex;
 
     for( var i = 0; i < currentGame.players.length; i++) {
@@ -141,6 +150,10 @@ function CalculateResults() {
         log("BetCount: " + currentGame.players[i].bets.length);
         log("BetCount: " + currentGame.players[i].bets.length);
         var myWinnings = 0;
+        if(!currentGame.players[i].bets[qi]) {
+            currentGame.players[i].bets[qi] = [];
+        }
+
         for (var k = 0; k < currentGame.players[i].bets[qi].length; k++) {
             log("Checking if " + currentGame.players[i].bets[qi][k].playerColor + " == " + correctColor);
             if(!currentGame.players[i].bets[qi]) {
@@ -161,8 +174,13 @@ function CalculateResults() {
 
 
     currentGame.questionIndex++;
-    currentGame.waitingOn = "answers";
-    DisplayNextQuestion();
+    if(currentGame.questionIndex >= currentGame.riddles.length) {
+        currentGame.waitingOn = "gameover";
+    }
+    else {
+        currentGame.waitingOn = "answers";
+        DisplayNextQuestion();
+    }
     SaveCurrentGame();
     SaveGames();
 }
@@ -257,7 +275,6 @@ function AssignColorsToPlayers() {
 
 function PollForGameResultsAsServer() {
     GetGamesAsServer();
-    setTimeout(PollForGameResultsAsServer, 2000);
 }
 
 function GetGamesAsServer() {
@@ -275,12 +292,22 @@ function UpdateServerWithNewGames() {
 
     var isEndOfTurn = IsEndOfTurn();
     if(isEndOfTurn) {
-        HandleEndOfTurn();
+        if(firstPass) {
+            HandleEndOfTurn(true);
+            firstPass = false;
+        }
+        else {
+            HandleEndOfTurn(false);
+        }
     }
     else {
+        //// first pass ensures the end of turn scenario has an option that only gets run once
+        firstPass = true;
         UpdateBoard();
         SaveCurrentGame();
     }
+
+    setTimeout(PollForGameResultsAsServer, 500);
 }
 
 function UpdateBoard() {
@@ -356,6 +383,9 @@ function IsEndOfTurn() {
                 return false;
             }
         }
+        return true;
+    }
+    else if(currentGame.waitingOn == "gameover") {
         return true;
     }
     else {

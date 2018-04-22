@@ -163,8 +163,9 @@ function handleBetsAndAnswerStates(waitingOnChanged) {
             ShowAnswerButton();
         }
         else {
-            updateElementWithNewHtml("primary-display-text-label", "Money: 0", null);
         }
+        var currentMoney = getCurrentBalance();
+        updateElementWithNewHtml("primary-display-text-label", "Money: " + currentMoney, null);
     }
 }
 
@@ -180,28 +181,42 @@ function gameStateChanged() {
 }
 
 function getCurrentBalance() {
-    var money = 0;
-    var riddleIndex = currentGame.questionIndex;
-    for (var i = 0; i <= riddleIndex; i++) {
-        var moneyToAdd = parseInt(currentPlayer.money[riddleIndex]);
-        if(!isNaN(moneyToAdd)) money += moneyToAdd;
+    var qi = currentGame.questionIndex;
 
-        var bet = currentPlayer.bets[i];
-        if(bet != null) {
-            for (var j = 0; j < bet.length; j++) {
-                var moneyToSubtract = parseInt(bet[j]);
-                if(!isNaN(moneyToSubtract)) money -= moneyToSubtract;
-            }
+    var totalBets = 0;
+    for (var i = 0; i < qi; i++) {
+        if(!currentPlayer.bets[i]) {
+            currentPlayer.bets[i] = [];
         }
 
-        var myColorsWinnings = currentGame.winnings[currentPlayer.color];
-        if(myColorsWinnings != null)
-        {
-            var winningsToAdd = parseInt(myColorsWinnings[riddleIndex]);
-            if(!isNaN(winningsToAdd)) money += winningsToAdd;
+        var totalBetOnThisQuestion = 0;
+        for (var k = 0; k < currentPlayer.bets[i].length; k++) {
+            var bet = parseIntOrDefault(currentPlayer.bets[i][k].amount, 0);
+            log("adding to bets total: " + bet);
+            totalBetOnThisQuestion = parseInt(totalBetOnThisQuestion) + parseInt(bet);
         }
+        totalBets += Math.max(0, totalBetOnThisQuestion - 2);
     }
-    return money;
+
+    log("totalBets: " + totalBets);
+    var totalWinnings = 0;
+    for (var i = 0; i < qi; i++) {
+        log(JSON.stringify());
+        var winningAmt = parseIntOrDefault(currentGame.winnings[currentPlayer.color][i], 0);
+        log("adding to winnings total: " + winningAmt);
+        totalWinnings = parseInt(totalWinnings) + parseInt(winningAmt);
+    }
+
+    log("totalWinnings: " + totalWinnings);
+
+    var money = parseInt(totalWinnings.toString()) - parseInt(totalBets.toString());
+
+    log("money: " + money);
+
+    var result = Math.max(money, 0);
+    log("result: " + result);
+
+    return result;
 }
 
 function CreateBettingButtonsAndLabels() {
@@ -304,6 +319,8 @@ function ClearBets() {
     currentPlayer.money[currentGame.questionIndex] = moneyAtStartOfBetting;
     myTotalBet = 0;
     bettingLocationsCount = 0;
+    var currentMoney = getCurrentBalance();
+    updateElementWithNewHtml("primary-display-text-label", "Money: " + currentMoney, null);
 }
 
 function parseIntOrDefault(numberToParse, defaultValue) {

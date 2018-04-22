@@ -10,6 +10,7 @@ function Game(selectedRiddles) {
     this.players = [];
     this.winnings = new Object();
     this.riddles = selectedRiddles;
+    this.winner = null;
 }
 
 Game.prototype.addAnswer = function(currentPlayer, answer) {
