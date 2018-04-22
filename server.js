@@ -79,6 +79,11 @@ function HandleEndOfTurn(firstCallToFunction) {
             setTimeout(CalculateResults, 2000);
         }
     }
+    else if(currentGame.waitingOn == "gameover") {
+        log("Game Over!");
+        document.getElementById("primary-display-text-label").innerHTML = "Game Over!";
+        var winningPlayer = getWinningPlayer();
+    }
 
     logDetailed("Saving Current Game");
     SaveCurrentGame();
@@ -169,8 +174,13 @@ function CalculateResults() {
 
 
     currentGame.questionIndex++;
-    currentGame.waitingOn = "answers";
-    DisplayNextQuestion();
+    if(currentGame.questionIndex >= currentGame.riddles.length) {
+        currentGame.waitingOn = "gameover";
+    }
+    else {
+        currentGame.waitingOn = "answers";
+        DisplayNextQuestion();
+    }
     SaveCurrentGame();
     SaveGames();
 }
@@ -373,6 +383,9 @@ function IsEndOfTurn() {
                 return false;
             }
         }
+        return true;
+    }
+    else if(currentGame.waitingOn == "gameover") {
         return true;
     }
     else {
