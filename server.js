@@ -112,7 +112,7 @@ function getWinningMultiplierArray(answersCount) {
 }
 
 function CalculateResults() {
-    var correctColor = null;
+    var correctColors = [];
     var correctAnswer = parseInt(currentGame.riddles[currentGame.questionIndex].answer);
     log(`answer as string ${currentGame.riddles[currentGame.questionIndex].answer} and as int ${correctAnswer}`);
     if(isNaN(correctAnswer)) alert("The Answer to this Question is not a number... Sorry.");
@@ -124,11 +124,25 @@ function CalculateResults() {
     );
 
     var winningIndex = -1;
+    var winningGuess = null;
     for(var i = 0; i < currentGame.players.length; i++) {
         try {
             var thisAnswer = parseInt(currentGame.players[i].answers[currentGame.questionIndex]);
             if(thisAnswer <= correctAnswer) {
-                correctColor = currentGame.players[i].color;
+                winningIndex = i;
+                winningGuess = thisAnswer;
+            }
+        }
+        catch (err) {
+        }
+    }
+
+    var winningIndex = -1;
+    for(var i = 0; i < currentGame.players.length; i++) {
+        try {
+            var thisAnswer = parseInt(currentGame.players[i].answers[currentGame.questionIndex]);
+            if(thisAnswer <= correctAnswer) {
+                correctColors.push(currentGame.players[i].color);
                 winningIndex = i;
             }
         }
@@ -140,35 +154,32 @@ function CalculateResults() {
     log("Winning Multipliers: " + winningMultipliers);
     var winningMultiplier = parseInt(winningMultipliers[winningIndex]);
     log("Winning Multiplier: " + winningMultiplier);
-    log("correctColor: " + correctColor);
+    log("correctColors: " + correctColors.toString());
 
     var qi = currentGame.questionIndex;
 
     for( var i = 0; i < currentGame.players.length; i++) {
         log("Name: " + currentGame.players[i].name);
         log("Color: " + currentGame.players[i].color);
-        log("BetCount: " + currentGame.players[i].bets.length);
-        log("BetCount: " + currentGame.players[i].bets.length);
+        log("BetCount: " + currentGame.players[i].bets[qi].length);
+
         var myWinnings = 0;
         if(!currentGame.players[i].bets[qi]) {
             currentGame.players[i].bets[qi] = [];
         }
 
         for (var k = 0; k < currentGame.players[i].bets[qi].length; k++) {
-            log("Checking if " + currentGame.players[i].bets[qi][k].playerColor + " == " + correctColor);
+            log("Checking if " + currentGame.players[i].bets[qi][k].playerColor + " == " + correctColors.toString());
             if(!currentGame.players[i].bets[qi]) {
                 currentGame.players[i].bets[qi] = [];
             }
 
-            if(currentGame.players[i].bets[qi][k].playerColor == correctColor) {
+            if(correctColors.includes(currentGame.players[i].bets[qi][k].playerColor)) {
                 var bet = parseInt(currentGame.players[i].bets[qi][k].amount);
-                myWinnings = bet * winningMultiplier;
-            }
-            else {
-                log("They arn't equal.");
+                myWinnings += parseInt(bet * winningMultiplier);
             }
         }
-        log(`winnings for ${currentGame.players[i].color} are ${myWinnings} = ${bet} * ${winningMultiplier}`);
+        log(`winnings for ${currentGame.players[i].color} are ${myWinnings}`);
         currentGame.winnings[currentGame.players[i].color][qi] = myWinnings;
     }
 
