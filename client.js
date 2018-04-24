@@ -130,7 +130,7 @@ function UpdatePlayerOnBackend() {
 
         var playerFromServer = GetCurrentPlayer();
         var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
-        if(updatedPlayerError != null) {
+        if(updatedPlayerError) {
             log("Player found not fully updated, updating. " + updatedPlayerError);
             SaveCurrentPlayer();
             SaveGames();

@@ -28,10 +28,12 @@ function firstPlayerUpToDateWithSecondPlayer(somePlayer, localCopyOfPlayer) {
                      " > somePlayer.bets.length " + somePlayer.bets.length;
     }
 
-    for(var i = 0; i < somePlayer.bets.length; i++) {
-        if(localCopyOfPlayer.bets[i] != somePlayer.bets[i]) {
-            return "localCopyOfPlayer.bets[i] " + localCopyOfPlayer.bets[i].playerColor + localCopyOfPlayer.bets[i].amount +
-                     " != somePlayer.bets[i] " + somePlayer.bets[i].playerColor + somePlayer.bets[i].amount;
+    for(var i = 0; i < localCopyOfPlayer.bets.length; i++) {
+        for(var j = 0; j < localCopyOfPlayer.bets[i].length; j++) {
+            if(localCopyOfPlayer.bets[i][j] != somePlayer.bets[i][j]) {
+                return "localCopyOfPlaYer.bets[i][j] " + localCopyOfPlayer.bets[i][j].playerColor + localCopyOfPlayer.bets[i][j].amount +
+                         " != somePlayer.bets[i][j] " + somePlayer.bets[i][j].playerColor + somePlayer.bets[i][j].amount;
+            }
         }
     }
 
