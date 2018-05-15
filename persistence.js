@@ -3,20 +3,19 @@ function GetCurrentGame() {
 }
 
 function GetCurrentGame(theGameId) {
-    if(!theGameId && !currentGame) {
-        log("game id and current game are null");
-        return null;
+    if(!theGameId) {
+        theGameId = getQueryString("gameId");
+    }
+    if(currentGame) {
+        theGameId = currentGame.id
     }
 
-    if (!theGameId) {
-        log("game id only is null");
-        theGameId = currentGame.id;
-    }
+    log("GETTING CURRENT GAME " + theGameId);
 
     for(var i = games.length-1; i >= 0; i--) {
-        log("Checking games " + games[i].id);
+        log("Checking Game " + games[i].id + " which has index " + games[i].questionIndex);
         if(games[i].id == theGameId) {
-            log("Matched games " + games[i].id);
+            log("Returning Game " + games[i].id + " which has index " + games[i].questionIndex);
             return games[i];
         }
     }
@@ -32,10 +31,11 @@ function SaveCurrentGame() {
 }
 
 function GetCurrentPlayer() {
-    if(currentGame == null) return;
+    var gameId = getQueryString("gameId");
+    if(currentGame) gameId = currentGame.id;
 
     for(var i = games.length-1; i >= 0; i--) {
-        if(games[i].id == currentGame.id) {
+        if(games[i].id == gameId) {
             for(var j = games[i].players.length-1; j >= 0; j--) {
                 if(games[i].players[j].name == currentPlayer.name) {
                     return games[i].players[j];
@@ -140,14 +140,29 @@ function GetJson(objectTypeName, callbackOnSuccess) {
     xmlHttp.open( "GET", theUrl, isAsync ); // false for synchronous request true for async
     xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
         if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
-            logDetailed("Get returned DONE 200! " + xmlHttp.responseText.substr(0,50));
+            var length = xmlHttp.responseText.length;
+            logDetailed("Get returned DONE 200!");
             if(objectTypeName === "Riddles") {
-                riddles = JSON.parse(xmlHttp.responseText);
-                if(callbackOnSuccess != null) callbackOnSuccess();
+                riddles = [];
+                var riddlesFromServer = JSON.parse(xmlHttp.responseText);
+                if(riddlesFromServer && riddlesFromServer.length > 0) {
+                    riddlesFromServer.forEach(function(r){
+                        riddles.push(new Riddle(r));
+                    });
+                }
+
+                if(callbackOnSuccess) callbackOnSuccess();
             }
             else if(objectTypeName === "Games") {
-                games = JSON.parse(xmlHttp.responseText);
-                if(callbackOnSuccess != null) callbackOnSuccess();
+                games = [];
+                var gamesFromServer = JSON.parse(xmlHttp.responseText);
+                if(gamesFromServer && gamesFromServer.length > 0) {
+                    gamesFromServer.forEach(function(g){
+                        games.push(new Game(g));
+                    });
+                }
+                log("Games Pulled.");
+                if(callbackOnSuccess) callbackOnSuccess();
             }
             else {
                 alert("Error: objectTypeName wasn't Riddles or Games when retrieving!");
@@ -169,7 +184,7 @@ function SaveJson(objectTypeName, callbackOnSuccess) {
     xmlHttp.onreadystatechange = function() {//Call a function when the state changes.
         if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200) {
             logDetailed("Put Success " + xmlHttp.responseText.substr(0, 50));
-            if(callbackOnSuccess != null) callbackOnSuccess();
+            if(callbackOnSuccess) callbackOnSuccess();
         }
         else {
             logDetailed("XML ReadyState: " + xmlHttp.readyState + " Status: " + xmlHttp.status);

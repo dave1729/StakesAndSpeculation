@@ -4,9 +4,15 @@
 <body>
 <h1>Player Page!</h1>
 <meta charset="utf-8"/>
-<p id="primary-display-text-label" class="game-display"> </p>
-<p id="secondary-display-text-label" class="game-display"> </p>
-<span id="body-span"></span>
+<p id="money" class="game-display"> </p>
+<p id="info-for-player" class="game-display"> </p>
+<label id="answer-input-label" class="send-answer">Answer: </label>
+<input id="answer-input" type="text" class="send-answer">
+<button id="answer-input-button" class="send-answer" type="button" onclick="SendAnswer()">Submit</button>
+<span id="player-buttons"></span>
+<br>
+<button id="clear-bets-button" class="betting" type="button" onclick="ClearBets()">Clear Bets</button>
+<button id="send-bets-button" class="betting" type="button" onclick="SendBets()">Send Bets</button>
 <br>
 <div id='content'></div>
 </body>
