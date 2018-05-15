@@ -45,7 +45,7 @@ function createNewGame() {
     var selectedRiddles = selectRandomElements(riddles, DefaultRiddlesPerGame);
 
     log("Initialize CurrentGame.");
-    currentGame = new Game(selectedRiddles);
+    currentGame = new Game({riddles: selectedRiddles});
     games.push(currentGame);
     SaveGames();
 

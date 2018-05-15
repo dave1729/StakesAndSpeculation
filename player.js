@@ -1,9 +1,11 @@
-function Player(playerName) {
-  this.name = playerName;
-  this.color = null;
-  this.money = [];
-  this.answers = [];
-  this.bets = [];
+function Player(options) {
+  if(options) {
+      this.name = options.name;
+      this.color = options.color || null;
+      this.money = options.money || [];
+      this.answers = options.answers || [];
+      this.bets = options.bets || [];
+  }
 }
 
 function firstPlayerUpToDateWithSecondPlayer(somePlayer, localCopyOfPlayer) {

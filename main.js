@@ -7,6 +7,10 @@ GetRiddles();
 GetGames();
 logDetailed("After Initial Games and Riddles");
 
+function notNullOrWhitespace(string) {
+    return string && string.trim().length > 0;
+}
+
 function padEnd(initialString,targetLength,padString) {
     targetLength = targetLength>>0; //floor if number or convert non-number to 0;
     padString = String((typeof padString !== 'undefined' ? padString : ' '));
@@ -89,20 +93,47 @@ function doesGameExist(gameId)
      return false;
 }
 
-function DisplayDebuggingButtons() {
-     var buttons = document.getElementsByClassName("debugging-buttons");
+function displayDebuggingButtons(className) {
+     var buttons = document.getElementsByClassName(className);
      for(var i = 0; i < buttons.length; i++) {
-         ToggleVisibleAndHidden(buttons[i]);
+         toggleVisibleAndHidden(buttons[i]);
      }
 }
 
-function ToggleVisibleAndHidden(element) {
+function toggleVisibleAndHidden(element) {
     if(element.style.visibility == 'visible') {
         element.style.visibility = 'hidden';
     }
     else {
         element.style.visibility = 'visible';
     }
+}
+
+function toggleHtmlDisplayAttributes(className) {
+     var buttons = document.getElementsByClassName(className);
+     log("toggling displays: " + buttons.length);
+     for(var i = 0; i < buttons.length; i++) {
+         toggleHtmlDisplayAttribute(buttons[i]);
+     }
+}
+
+function toggleHtmlDisplayAttribute(element) {
+    if(element.style.display == 'inline') {
+        log("switching " + element.innerHTML + " to " + "none");
+        element.style.display = 'none';
+    }
+    else {
+        log("switching " + element.innerHTML + " to " + "inline");
+        element.style.display = 'inline';
+    }
+}
+
+function changeHtmlDisplayAttributes(className, displaySetting) {
+     var buttons = document.getElementsByClassName(className);
+     log("toggling displays: " + buttons.length);
+     for(var i = 0; i < buttons.length; i++) {
+         buttons[i].style.display = displaySetting;
+     }
 }
 
 function commonContent() {

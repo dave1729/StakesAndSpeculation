@@ -1,6 +1,5 @@
 function test0() {
-    var testName = "checkThatListOneIsUpToDateWithListTwo";
-    var testResult = "";
+    testName = "checkThatListOneIsUpToDateWithListTwo";
     var listOne = [];
     var listTwo = [];
     listOne.push("hello");
@@ -89,11 +88,67 @@ function test2() {
     return testResult + " ; " + testName;
 }
 
+function test3() {
+    testName = "testing forEach loops";
+
+    var arrayOfArrays = [];
+    arrayOfArrays.push([1, 2, 3, 4]);
+    arrayOfArrays.push([5, 6, 7, 8]);
+
+    log("before: " + arrayOfArrays);
+
+    arrayOfArrays.forEach(function(x) {
+        log("x: " + x[1]);
+        x[1] = x[1] + 1;
+        log("x: " + x[1]);
+    });
+
+    log("after: " + arrayOfArrays);
+
+    var result = arrayOfArrays[1][1];
+    if (result == 7) {
+        testResult = "pass";
+    }
+    else {
+        testResult = "fail, reason; result is " + result;
+    }
+
+    return testResult + " ; " + testName;
+}
+
+function test4() {
+    var emptyArray = [];
+    log(emptyArray);
+    emptyArray[2] = "thing";
+
+    log(emptyArray);
+
+
+    testName = "testing game de-serialization";
+    var gameBefore = new Game({id: "qwerty"});
+
+    var serializedGame = JSON.stringify(gameBefore);
+    var backToObject = JSON.parse(serializedGame);
+    var gameAfter = new Game(backToObject);
+
+    var result = gameAfter.displayGameId(2);
+    if (result == "erty") {
+        testResult = "pass";
+    }
+    else {
+        testResult = "fail, reason; result is " + result;
+    }
+
+    return testResult + " ; " + testName;
+}
+
 function runTests() {
     var testResults = "";
     var testNumber = 0;
     var testsComplete = false;
     while(!testsComplete) {
+        testName = "";
+        testResult = "";
         try {
             testResults += "Test" + testNumber + " " + eval("test" + testNumber + "()") + "<br>";
         } catch (err) {
@@ -101,10 +156,13 @@ function runTests() {
                 testsComplete = true;
             }
             else {
-                testResults += "Test" + testNumber + " ERROR: " + err.message + "<br>";
+                testResults += "Test" + testNumber + " ERROR: " + err.message + ". LineNumber: " + err.lineNumber + "<br>";
             }
         }
         testNumber++;
     }
     document.getElementById("test-span").innerHTML = testResults;
 }
+
+var testName = "";
+var testResult = "";

@@ -1,4 +1,4 @@
-var currentPlayer = Player(null);
+var currentPlayer = null;
 var bettingButtonsCreated = false;
 var myTotalBet = 0;
 var moneyAtStartOfBetting = -1;
@@ -22,10 +22,16 @@ function GetGamesAndSendInput() {
     for(var i = games.length-1; i >= 0; i--) {
         log("games[i].id " + games[i].id + " == gameId " + gameId);
         if(games[i].id == gameId) {
-            currentPlayer = new Player(playerName);
-            log("Creating currentPlayer: " + currentPlayer.toString());
-            games[i].players.push(currentPlayer);
+            if(notNullOrWhitespace(playerName) && !games[i].anyPlayers(function(p){ return p.name === playerName})) {
+                currentPlayer = new Player({name: playerName});
+                log("Creating currentPlayer: " + currentPlayer.toString());
+                games[i].players.push(currentPlayer);
+            }
+            else {
+                currentPlayer = games[i].getPlayerNamed(playerName);
+            }
             currentGame = games[i];
+            break;
         }
     }
 
@@ -39,9 +45,9 @@ function SendInput() {
     log("Sending Player!");
     //set the right game
     for(var i = games.length-1; i >= 0; i--) {
-        log("games[i].id " + games[i].id + " == gameId " + gameId);
+        log("games[i].id " + games[i].id + " == gameId " + currentGame.id);
         if(games[i].id == currentGame.id) {
-            currentPlayer = new Player(playerName);
+            currentPlayer = new Player({name: playerName});
             log("Creating currentPlayer: " + currentPlayer.toString());
             // TODO: a player should only be added if there are no players by the same name
             games[i].players.push(currentPlayer);
@@ -51,11 +57,9 @@ function SendInput() {
 }
 
 function ShowAnswerButton() {
-    var displayText = '' +
-            '<label id="answer-input-label">Answer: </label><input id="answer-input" type="text">' +
-            '<button type="button" id="answer-input-button" onclick="SendAnswer()">Submit</button>';
-
-    updateElementWithNewHtml("body-span", displayText, null);
+    log('Showing Answer Button');
+    changeHtmlDisplayAttributes('send-answer', 'inline');
+    changeHtmlDisplayAttributes('betting', 'none');
 }
 
 function SendAnswer() {
@@ -82,8 +86,10 @@ function SendAnswer() {
     logDetailed("AnswerAsFloat: " + answerAsFloat);
 
     if(answerAsFloat == null) {
-        document.getElementById("secondary-display-text-label").innerHTML = answerValue + "... what is wrong with you?";
+        document.getElementById("info-for-player").innerHTML = answerValue + "... what is wrong with you?";
     }
+
+    log("Question index (should not be negative): " + currentGame.questionIndex);
 
     for(var i = 0; i < currentGame.questionIndex+1; i++) {
         if(i == currentGame.questionIndex) {
@@ -93,7 +99,7 @@ function SendAnswer() {
 
     log("Sending Answer. End: " + JSON.stringify(currentPlayer.answers));
 
-    document.getElementById("secondary-display-text-label").innerHTML = "Answer Sent";
+    document.getElementById("info-for-player").innerHTML = "Answer Sent";
     SaveCurrentPlayer();
     SaveGames();
 }
@@ -125,7 +131,9 @@ function UpdatePlayerOnBackend() {
         currentPlayer = GetCurrentPlayer();
     }
     else {
+        log("Setting Current Game");
         currentGame = GetCurrentGame();
+        log("Current Game: " + currentGame.id + " waiting on " + currentGame.waitingOn + " with QI: " + currentGame.questionIndex);
         handleBetsAndAnswerStates(waitingOnChanged);
 
         var playerFromServer = GetCurrentPlayer();
@@ -147,7 +155,7 @@ function handleBetsAndAnswerStates(waitingOnChanged) {
         }
 
         log("Waiting On Players... ");
-        updateElementWithNewHtml("primary-display-text-label", "Money: 0", null);
+        updateElementWithNewHtml("money", "Money: 0", null);
     }
     else if(currentGame.waitingOn == "bets") {
         if(waitingOnChanged) {
@@ -165,7 +173,7 @@ function handleBetsAndAnswerStates(waitingOnChanged) {
         else {
         }
         var currentMoney = getCurrentBalance();
-        updateElementWithNewHtml("primary-display-text-label", "Money: " + currentMoney, null);
+        updateElementWithNewHtml("money", "Money: " + currentMoney, null);
     }
 }
 
@@ -230,18 +238,19 @@ function CreateBettingButtonsAndLabels() {
 
     for(var i = 0; i < currentGame.players.length; i++) {
         var player = currentGame.players[i];
-        bettingButtonsHtml += '<label id="' + player.color + '-label" style="color: ' + player.color + '" size="4">0</label>';
+        bettingButtonsHtml += '<label id="' + player.color + '-label" class="betting" style="color: ' + player.color + '" size="4">0</label>';
         bettingButtonsHtml += '<button type="button" id="' + player.color +
-            '-button" background.color="' + player.color +
+            '-button" class="betting" background.color="' + player.color +
             '" onclick="BetOnPlayer(' + i +
             ')">' + player.color + '</button>';
     }
 
-    bettingButtonsHtml += '<br><button id="clear-bets-button" type="button" onclick="ClearBets()">Clear Bets</button>';
-    bettingButtonsHtml += '<button id="send-bets-button" type="button" onclick="SendBets()">Send Bets</button>';
+    changeHtmlDisplayAttributes('send-answer', 'none');
+    changeHtmlDisplayAttributes('betting', 'inline');
 
     updateMoney();
-    updateElementWithNewHtml("body-span", bettingButtonsHtml, 54);
+    log(bettingButtonsHtml);
+    updateElementWithNewHtml("player-buttons", bettingButtonsHtml, 54);
 }
 
 function BetOnPlayer(i) {
@@ -308,7 +317,7 @@ function updateMoney() {
     {
         money = 0;
     }
-    updateElementWithNewHtml("primary-display-text-label", "Money: " + money, null);
+    updateElementWithNewHtml("money", "Money: " + money, null);
 }
 
 function ClearBets() {
@@ -320,7 +329,7 @@ function ClearBets() {
     myTotalBet = 0;
     bettingLocationsCount = 0;
     var currentMoney = getCurrentBalance();
-    updateElementWithNewHtml("primary-display-text-label", "Money: " + currentMoney, null);
+    updateElementWithNewHtml("money", "Money: " + currentMoney, null);
 }
 
 function parseIntOrDefault(numberToParse, defaultValue) {
@@ -358,7 +367,7 @@ function SendBets() {
 
 function ClearBetsAndDisplayBetsSent() {
     ClearBets();
-    document.getElementById("secondary-display-text-label").innerHTML = "Answer Sent";
+    document.getElementById("info-for-player").innerHTML = "Answer Sent";
 }
 
 function MyPlayerIsMissing() {
