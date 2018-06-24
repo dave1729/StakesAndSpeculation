@@ -1,5 +1,5 @@
 function Game(options) {
-    log("Making New Game. options.id " + options.id + " and queryString " + getQueryString("gameId"));
+    log("Making New Game. options.id: " + options.id + " and queryString: " + getQueryString("gameId"));
     this.id = options.id || getQueryString("gameId");
     if(!this.id)
     {

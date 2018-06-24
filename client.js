@@ -9,6 +9,81 @@ function GetGamesAsClient() {
     GetJson("Games", UpdatePlayerOnBackend);
 }
 
+function UpdatePlayerOnBackend() {
+    var waitingOnStage = currentGame == null ? "":currentGame.waitingOn;
+    log("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
+
+    var waitingOnChanged = gameStateChanged();
+    log("Has waitingOnChanged: " + waitingOnChanged);
+    if (!currentPlayer){
+        log("Player is null on our end, Adding Player. currentGame.id: " + currentGame.id);
+        SendInput();
+    }
+    else if (MyPlayerIsMissing()){
+        log("Player is missing, Adding Player.");
+
+        //set the right game
+        for(var i = games.length-1; i >= 0; i--) {
+            if(games[i].id === currentGame.id) {
+                games[i].players.push(currentPlayer);
+                currentGame = games[i];
+
+                SaveGames();
+            }
+        }
+    }
+    else if (currentPlayer.color == null) {
+        log("Waiting for player color to be assigned.");
+        currentPlayer = GetCurrentPlayer();
+    }
+    else {
+        log("Setting Current Game");
+        currentGame = GetCurrentGame();
+        log("Current Game: " + currentGame.id + " waiting on " + currentGame.waitingOn + " with QI: " + currentGame.questionIndex);
+        handleBetsAndAnswerStates(waitingOnChanged);
+
+        var playerFromServer = GetCurrentPlayer();
+        var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
+        if(updatedPlayerError) {
+            log("Player found not fully updated, updating. " + updatedPlayerError);
+            SaveCurrentPlayer();
+            SaveGames();
+        }
+    }
+
+    setTimeout(GetGamesAsClient, 3000);
+}
+
+function handleBetsAndAnswerStates(waitingOnChanged) {
+    log("handleBetsAndAnswerStates");
+    if(currentGame.waitingOn == "players") {
+        if(waitingOnChanged) {
+            ////ShowAnswerButton();
+        }
+
+        log("Waiting On Players... ");
+        updateElementWithNewHtml("money", "Money: 0", null);
+    }
+    else if(currentGame.waitingOn == "bets") {
+        if(waitingOnChanged) {
+            myTotalBet = 0;
+            bettingLocationsCount = 0;
+            moneyAtStartOfBetting = getCurrentBalance();
+            currentPlayer.money[currentGame.questionIndex] = moneyAtStartOfBetting;
+            CreateBettingButtonsAndLabels();
+        }
+    }
+    else if(currentGame.waitingOn == "answers") {
+        if(waitingOnChanged) {
+            ShowAnswerButton();
+        }
+        else {
+        }
+        var currentMoney = getCurrentBalance();
+        updateElementWithNewHtml("money", "Money: " + currentMoney, null);
+    }
+}
+
 function GetGamesAndSendInput() {
     log("Initiating current game and player. ");
     var gameId = getQueryString("gameId");
@@ -104,79 +179,6 @@ function SendAnswer() {
     SaveGames();
 }
 
-function UpdatePlayerOnBackend() {
-    var waitingOnStage = currentGame == null ? "":currentGame.waitingOn;
-    log("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
-
-    var waitingOnChanged = gameStateChanged();
-    if (!currentPlayer){
-        log("Player is null on our end, Adding Player. currentGame.id: " + currentGame.id);
-        SendInput();
-    }
-    else if (MyPlayerIsMissing()){
-        log("Player is missing, Adding Player.");
-
-        //set the right game
-        for(var i = games.length-1; i >= 0; i--) {
-            if(games[i].id === currentGame.id) {
-                games[i].players.push(currentPlayer);
-                currentGame = games[i];
-
-                SaveGames();
-            }
-        }
-    }
-    else if (currentPlayer.color == null) {
-        log("Waiting for player color to be assigned.");
-        currentPlayer = GetCurrentPlayer();
-    }
-    else {
-        log("Setting Current Game");
-        currentGame = GetCurrentGame();
-        log("Current Game: " + currentGame.id + " waiting on " + currentGame.waitingOn + " with QI: " + currentGame.questionIndex);
-        handleBetsAndAnswerStates(waitingOnChanged);
-
-        var playerFromServer = GetCurrentPlayer();
-        var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
-        if(updatedPlayerError) {
-            log("Player found not fully updated, updating. " + updatedPlayerError);
-            SaveCurrentPlayer();
-            SaveGames();
-        }
-    }
-
-    setTimeout(GetGamesAsClient, 3000);
-}
-
-function handleBetsAndAnswerStates(waitingOnChanged) {
-    if(currentGame.waitingOn == "players") {
-        if(waitingOnChanged) {
-            ////ShowAnswerButton();
-        }
-
-        log("Waiting On Players... ");
-        updateElementWithNewHtml("money", "Money: 0", null);
-    }
-    else if(currentGame.waitingOn == "bets") {
-        if(waitingOnChanged) {
-            myTotalBet = 0;
-            bettingLocationsCount = 0;
-            moneyAtStartOfBetting = getCurrentBalance();
-            currentPlayer.money[currentGame.questionIndex] = moneyAtStartOfBetting;
-            CreateBettingButtonsAndLabels();
-        }
-    }
-    else if(currentGame.waitingOn == "answers") {
-        if(waitingOnChanged) {
-            ShowAnswerButton();
-        }
-        else {
-        }
-        var currentMoney = getCurrentBalance();
-        updateElementWithNewHtml("money", "Money: " + currentMoney, null);
-    }
-}
-
 function gameStateChanged() {
     var currentGameFromServer = GetCurrentGame();
     if (currentGame != null &&
@@ -228,6 +230,7 @@ function getCurrentBalance() {
 }
 
 function CreateBettingButtonsAndLabels() {
+    log("CreateBettingButtonsAndLabels");
     var bettingButtonsHtml = "<br>";
 
     currentGame.players.sort(
@@ -238,19 +241,20 @@ function CreateBettingButtonsAndLabels() {
 
     for(var i = 0; i < currentGame.players.length; i++) {
         var player = currentGame.players[i];
-        bettingButtonsHtml += '<label id="' + player.color + '-label" class="betting" style="color: ' + player.color + '" size="4">0</label>';
+        bettingButtonsHtml += '<label id="' + player.color + '-label" class="betting" style="display:inline;" style="color: ' + player.color + '" size="4">0</label>';
         bettingButtonsHtml += '<button type="button" id="' + player.color +
-            '-button" class="betting" background.color="' + player.color +
+            '-button" style="display:inline;" class="betting" background.color="' + player.color +
             '" onclick="BetOnPlayer(' + i +
             ')">' + player.color + '</button>';
     }
 
-    changeHtmlDisplayAttributes('send-answer', 'none');
-    changeHtmlDisplayAttributes('betting', 'inline');
-
     updateMoney();
     log(bettingButtonsHtml);
     updateElementWithNewHtml("player-buttons", bettingButtonsHtml, 54);
+
+    log("random");
+    changeHtmlDisplayAttributes('send-answer', 'none');
+    changeHtmlDisplayAttributes('betting', 'inline');
 }
 
 function BetOnPlayer(i) {

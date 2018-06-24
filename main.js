@@ -111,7 +111,8 @@ function toggleVisibleAndHidden(element) {
 
 function toggleHtmlDisplayAttributes(className) {
      var buttons = document.getElementsByClassName(className);
-     log("toggling displays: " + buttons.length);
+     log("Changing displays: " + buttons.length);
+     log("does this even show up!?!?!?!?!?!?!?!??!?!?!?!");
      for(var i = 0; i < buttons.length; i++) {
          toggleHtmlDisplayAttribute(buttons[i]);
      }
@@ -130,8 +131,12 @@ function toggleHtmlDisplayAttribute(element) {
 
 function changeHtmlDisplayAttributes(className, displaySetting) {
      var buttons = document.getElementsByClassName(className);
-     log("toggling displays: " + buttons.length);
+     log("buttons: " + buttons);
+     log("random2");
+     log("Changing '" + className + "' displays: " + buttons.length);
      for(var i = 0; i < buttons.length; i++) {
+
+         log("  setting '" + buttons[i].id + "' to " + displaySetting);
          buttons[i].style.display = displaySetting;
      }
 }
