@@ -4,16 +4,16 @@ var firstPass = true;
 //enum: players,answers,bets
 
 function waitForGamesAndRiddles() {
-    log("Waiting for games and riddles... ");
+    logDetailed("Waiting for games and riddles... ");
     if(!riddles || !games) {
         nullGamesError++;
 
-        log("Waiting (riddles == null|games == null): " + "(" + (!riddles) + "|" + (!games) + ")");
+        logDetailed("Waiting (riddles == null|games == null): " + "(" + (!riddles) + "|" + (!games) + ")");
         setTimeout(waitForGamesAndRiddles, 300);
 
-        log("No Games Found From Server. Occurances: " + nullGamesError);
+        logDetailed("No Games Found From Server. Occurances: " + nullGamesError);
         if(nullGamesError > 5) {
-            log("No Games Found. Saving Empty Games List To Server.");
+            logDetailed("No Games Found. Saving Empty Games List To Server.");
             games = [];
             SaveGames();
         }
@@ -21,14 +21,14 @@ function waitForGamesAndRiddles() {
     else {
         var gameId = getQueryString("gameId");
         currentGame = GetCurrentGame(gameId);
-        log("Using the querystring found game: " + currentGame);
+        logDetailed("Using the querystring found game: " + currentGame);
         if(currentGame != null) {
-            log("Starting Existing Game using Game ID. gameId: " + currentGame.id);
+            logDetailed("Starting Existing Game using Game ID. gameId: " + currentGame.id);
             SaveCurrentGame();
             useGameThatAlreadyExist();
         }
         else {
-            log("Making a new Game using Game ID. gameId: " + gameId);
+            logDetailed("Making a new Game using Game ID. gameId: " + gameId);
             createNewGame();
         }
     }
@@ -37,50 +37,52 @@ function waitForGamesAndRiddles() {
 function useGameThatAlreadyExist() {
     document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
     SaveGames();
-    setTimeout(PollForGameResultsAsServer, 3000);
+    setTimeout(PollForGameResultsAsServer, 1000);
 }
 
 function createNewGame() {
     shuffle(riddles);
     var selectedRiddles = selectRandomElements(riddles, DefaultRiddlesPerGame);
 
-    log("Initialize CurrentGame.");
+    logDetailed("Initialize CurrentGame.");
     currentGame = new Game({riddles: selectedRiddles});
     games.push(currentGame);
     SaveGames();
 
     document.getElementById("primary-display-text-label").innerHTML = "Game ID: " + currentGame.id;
-    setTimeout(PollForGameResultsAsServer, 3000);
+    setTimeout(PollForGameResultsAsServer, 1000);
 }
 
 function HandleEndOfTurn(firstCallToFunction) {
-    log("Handling End of Turn. CurrentGame is waiting on " + currentGame.waitingOn);
+    logDetailed("Handling End of Turn. CurrentGame is waiting on " + currentGame.waitingOn);
     if(currentGame.waitingOn == "players") {
-        log("Assigning Colors");
+        logDetailed("Assigning Colors");
         AssignColorsToPlayers();
         document.getElementById('next-turn-button').innerHTML = "Turn Is Complete";
+        log("Waiting On Answers Now.");
         currentGame.waitingOn = "answers";
-        log("question index: " + currentGame.questionIndex);
+        logDetailed("question index: " + currentGame.questionIndex);
         currentGame.questionIndex++;
-        log("question index: " + currentGame.questionIndex);
+        logDetailed("question index: " + currentGame.questionIndex);
         DisplayNextQuestion();
     }
     else if(currentGame.waitingOn == "answers") {
-        log("Answers are in. Display Answers and move onto betting!");
+        logDetailed("Answers are in. Display Answers and move onto betting!");
         DisplayPlayersWithAnswers();
         setTimeout(DisplayAnswersForVoting, 5000);
+        log("WaitingOn Bets Now.");
         currentGame.waitingOn = "bets";
     }
     else if(currentGame.waitingOn == "bets") {
-        log("End Of Turn After Bets!");
+        logDetailed("End Of Turn After Bets!");
         DisplayAnswersForVoting();
-        log("firstCallToFunction? " + firstCallToFunction);
+        logDetailed("firstCallToFunction? " + firstCallToFunction);
         if(firstCallToFunction) {
             setTimeout(CalculateResults, 2000);
         }
     }
     else if(currentGame.waitingOn == "gameover") {
-        log("Game Over!");
+        logDetailed("Game Over!");
         document.getElementById("primary-display-text-label").innerHTML = "Game Over!";
         var winningPlayer = getWinningPlayer();
     }
@@ -114,7 +116,7 @@ function getWinningMultiplierArray(answersCount) {
 function CalculateResults() {
     var correctColors = [];
     var correctAnswer = parseInt(currentGame.riddles[currentGame.questionIndex].answer);
-    log(`answer as string ${currentGame.riddles[currentGame.questionIndex].answer} and as int ${correctAnswer}`);
+    logDetailed(`answer as string ${currentGame.riddles[currentGame.questionIndex].answer} and as int ${correctAnswer}`);
     if(isNaN(correctAnswer)) alert("The Answer to this Question is not a number... Sorry.");
 
     currentGame.players.sort(
@@ -151,17 +153,17 @@ function CalculateResults() {
     }
 
     var winningMultipliers = getWinningMultiplierArray(currentGame.players.length);
-    log("Winning Multipliers: " + winningMultipliers);
+    logDetailed("Winning Multipliers: " + winningMultipliers);
     var winningMultiplier = parseInt(winningMultipliers[winningIndex]);
-    log("Winning Multiplier: " + winningMultiplier);
-    log("correctColors: " + correctColors.toString());
+    logDetailed("Winning Multiplier: " + winningMultiplier);
+    logDetailed("correctColors: " + correctColors.toString());
 
     var qi = currentGame.questionIndex;
 
     for( var i = 0; i < currentGame.players.length; i++) {
-        log("Name: " + currentGame.players[i].name);
-        log("Color: " + currentGame.players[i].color);
-        log("BetCount: " + currentGame.players[i].bets[qi].length);
+        logDetailed("Name: " + currentGame.players[i].name);
+        logDetailed("Color: " + currentGame.players[i].color);
+        logDetailed("BetCount: " + currentGame.players[i].bets[qi].length);
 
         var myWinnings = 0;
         if(!currentGame.players[i].bets[qi]) {
@@ -169,7 +171,7 @@ function CalculateResults() {
         }
 
         for (var k = 0; k < currentGame.players[i].bets[qi].length; k++) {
-            log("Checking if " + currentGame.players[i].bets[qi][k].playerColor + " == " + correctColors.toString());
+            logDetailed("Checking if " + currentGame.players[i].bets[qi][k].playerColor + " == " + correctColors.toString());
             if(!currentGame.players[i].bets[qi]) {
                 currentGame.players[i].bets[qi] = [];
             }
@@ -179,7 +181,7 @@ function CalculateResults() {
                 myWinnings += parseInt(bet * winningMultiplier);
             }
         }
-        log(`winnings for ${currentGame.players[i].color} are ${myWinnings}`);
+        logDetailed(`winnings for ${currentGame.players[i].color} are ${myWinnings}`);
         currentGame.winnings[currentGame.players[i].color][qi] = myWinnings;
     }
 
@@ -198,7 +200,7 @@ function CalculateResults() {
 
 function DisplayNextQuestion() {
     var currentRiddle = currentGame.riddles[currentGame.questionIndex];
-    log("Current Riddle: " + currentRiddle.question.toString());
+    logDetailed("Current Riddle: " + currentRiddle.question.toString());
     document.getElementById("secondary-display-text-label").innerHTML = "Question: " + currentRiddle.question + "(source: " + currentRiddle.sourceName + " as of " + currentRiddle.sourceYear + ")";
 }
 
@@ -322,7 +324,7 @@ function UpdateServerWithNewGames() {
 }
 
 function UpdateBoard() {
-    log("Update Board. CurrentGame is waiting on " + currentGame.waitingOn);
+    logDetailed("Update Board. CurrentGame is waiting on " + currentGame.waitingOn);
     if(currentGame.waitingOn == "players") {
         DisplayPendingPlayerNames();
     }
@@ -335,7 +337,7 @@ function UpdateBoard() {
 }
 
 function DisplayPendingPlayerNames() {
-    log("printing players so far. GameId: " + currentGame.id);
+    logDetailed("printing players so far. GameId: " + currentGame.id);
     var displayText = "Game ID: " + currentGame.id + "        Players: ";
     for(var i = 0; i < currentGame.players.length; i++) {
         displayText += currentGame.players[i].name + ",   ";
@@ -404,4 +406,4 @@ function IsEndOfTurn() {
     }
 }
 
-log("server.js loaded");
+logDetailed("server.js loaded");

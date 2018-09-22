@@ -1,16 +1,16 @@
 function Game(options) {
-    log("Making New Game. options.id: " + options.id + " and queryString: " + getQueryString("gameId"));
+    logDetailed("Making New Game. options.id: " + options.id + " and queryString: " + getQueryString("gameId"));
     this.id = options.id || getQueryString("gameId");
     if(!this.id)
     {
         this.id = prompt("Could Not Get Game Id Automatically. Enter desired Game ID:");
     }
-    log("Decided ID is " + this.id);
+    logDetailed("Decided ID is " + this.id);
 
     this.date = options.date || Date.now();
 
     this.questionIndex = options.questionIndex;
-    log("options.questionIndex " + options.questionIndex);
+    logDetailed("options.questionIndex " + options.questionIndex);
     if(this.questionIndex == null || this.questionIndex == undefined) this.questionIndex = -1;
 
     this.waitingOn = options.waitingOn || "players";

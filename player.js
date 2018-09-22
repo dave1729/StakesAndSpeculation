@@ -9,7 +9,7 @@ function Player(options) {
 }
 
 function firstPlayerUpToDateWithSecondPlayer(somePlayer, localCopyOfPlayer) {
-    log("Comparing Players " + JSON.stringify(somePlayer) + " and " + JSON.stringify(localCopyOfPlayer));
+    logDetailed("Comparing Players " + JSON.stringify(somePlayer) + " and " + JSON.stringify(localCopyOfPlayer));
 
     if(localCopyOfPlayer == null || localCopyOfPlayer.color == null) {
         return null;

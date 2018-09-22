@@ -52,17 +52,17 @@ function GoToServerPage() {
 }
 
 function GetGamesThenGoToClientPage() {
-    log("Getting Games");
+    logDetailed("Getting Games");
     GetJson('Games', toClientPage);
 }
 
 function toClientPage() {
-    log("Getting ready to go to client page.");
+    logDetailed("Getting ready to go to client page.");
     gameId = document.getElementById('game-id-input').value;
     var gameExists = doesGameExist(gameId);
     name = document.getElementById('player-name-input').value;
     document.getElementById('primary-display-text-label').innerHTML = "Test Text Should See...";
-    log("name " + name);
+    logDetailed("name " + name);
     if(name && gameExists)
     {
         window.location = `client.html?playerName=${name}&gameId=${gameId}`;
@@ -85,7 +85,7 @@ function toClientPage() {
 function doesGameExist(gameId)
 {
      for(var i = 0; i < games.length; i++) {
-         log("gameId: " + games[i].id);
+         logDetailed("gameId: " + games[i].id);
          if(games[i].id === gameId) {
              return true;
          }
@@ -111,8 +111,8 @@ function toggleVisibleAndHidden(element) {
 
 function toggleHtmlDisplayAttributes(className) {
      var buttons = document.getElementsByClassName(className);
-     log("Changing displays: " + buttons.length);
-     log("does this even show up!?!?!?!?!?!?!?!??!?!?!?!");
+     logDetailed("Changing displays: " + buttons.length);
+     logDetailed("does this even show up!?!?!?!?!?!?!?!??!?!?!?!");
      for(var i = 0; i < buttons.length; i++) {
          toggleHtmlDisplayAttribute(buttons[i]);
      }
@@ -120,23 +120,23 @@ function toggleHtmlDisplayAttributes(className) {
 
 function toggleHtmlDisplayAttribute(element) {
     if(element.style.display == 'inline') {
-        log("switching " + element.innerHTML + " to " + "none");
+        logDetailed("switching " + element.innerHTML + " to " + "none");
         element.style.display = 'none';
     }
     else {
-        log("switching " + element.innerHTML + " to " + "inline");
+        logDetailed("switching " + element.innerHTML + " to " + "inline");
         element.style.display = 'inline';
     }
 }
 
 function changeHtmlDisplayAttributes(className, displaySetting) {
      var buttons = document.getElementsByClassName(className);
-     log("buttons: " + buttons);
-     log("random2");
-     log("Changing '" + className + "' displays: " + buttons.length);
+     logDetailed("buttons: " + buttons.length);
+     logDetailed("random2");
+     logDetailed("Changing '" + className + "' displays: " + buttons.length);
      for(var i = 0; i < buttons.length; i++) {
 
-         log("  setting '" + buttons[i].id + "' to " + displaySetting);
+         logDetailed("  setting '" + buttons[i].id + "' to " + displaySetting);
          buttons[i].style.display = displaySetting;
      }
 }
@@ -178,4 +178,4 @@ function stringArraySizeMatch(stringArray) {
     };
 }
 
-log("main.js loaded");
+logDetailed("main.js loaded");
