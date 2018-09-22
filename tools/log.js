@@ -1,4 +1,4 @@
-var includeDetailedLogs = true;
+var includeDetailedLogs = false;
 
 function log(theString) {
     console.log(theString);

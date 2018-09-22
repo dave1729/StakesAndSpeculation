@@ -5,22 +5,22 @@ var moneyAtStartOfBetting = -1;
 var bettingLocationsCount = 0;
 
 function GetGamesAsClient() {
-    log("Now Get Games.");
+    logDetailed("Now Get Games.");
     GetJson("Games", UpdatePlayerOnBackend);
 }
 
 function UpdatePlayerOnBackend() {
     var waitingOnStage = currentGame == null ? "":currentGame.waitingOn;
-    log("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
+    logDetailed("Updating Current Game from Server. CurrentGame is waiting on " + waitingOnStage);
 
     var waitingOnChanged = gameStateChanged();
-    log("Has waitingOnChanged: " + waitingOnChanged);
+    logDetailed("Has waitingOnChanged: " + waitingOnChanged);
     if (!currentPlayer){
-        log("Player is null on our end, Adding Player. currentGame.id: " + currentGame.id);
+        logDetailed("Player is null on our end, Adding Player. currentGame.id: " + currentGame.id);
         SendInput();
     }
     else if (MyPlayerIsMissing()){
-        log("Player is missing, Adding Player.");
+        logDetailed("Player is missing, Adding Player.");
 
         //set the right game
         for(var i = games.length-1; i >= 0; i--) {
@@ -33,19 +33,19 @@ function UpdatePlayerOnBackend() {
         }
     }
     else if (currentPlayer.color == null) {
-        log("Waiting for player color to be assigned.");
+        logDetailed("Waiting for player color to be assigned.");
         currentPlayer = GetCurrentPlayer();
     }
     else {
-        log("Setting Current Game");
+        logDetailed("Setting Current Game");
         currentGame = GetCurrentGame();
-        log("Current Game: " + currentGame.id + " waiting on " + currentGame.waitingOn + " with QI: " + currentGame.questionIndex);
+        logDetailed("Current Game: " + currentGame.id + " waiting on " + currentGame.waitingOn + " with QI: " + currentGame.questionIndex);
         handleBetsAndAnswerStates(waitingOnChanged);
 
         var playerFromServer = GetCurrentPlayer();
         var updatedPlayerError = firstPlayerUpToDateWithSecondPlayer(playerFromServer,currentPlayer);
         if(updatedPlayerError) {
-            log("Player found not fully updated, updating. " + updatedPlayerError);
+            logDetailed("Player found not fully updated, updating. " + updatedPlayerError);
             SaveCurrentPlayer();
             SaveGames();
         }
@@ -55,13 +55,13 @@ function UpdatePlayerOnBackend() {
 }
 
 function handleBetsAndAnswerStates(waitingOnChanged) {
-    log("handleBetsAndAnswerStates");
+    logDetailed("handleBetsAndAnswerStates");
     if(currentGame.waitingOn == "players") {
         if(waitingOnChanged) {
             ////ShowAnswerButton();
         }
 
-        log("Waiting On Players... ");
+        logDetailed("Waiting On Players... ");
         updateElementWithNewHtml("money", "Money: 0", null);
     }
     else if(currentGame.waitingOn == "bets") {
@@ -85,21 +85,21 @@ function handleBetsAndAnswerStates(waitingOnChanged) {
 }
 
 function GetGamesAndSendInput() {
-    log("Initiating current game and player. ");
+    logDetailed("Initiating current game and player. ");
     var gameId = getQueryString("gameId");
-    log("QueryValue: " + gameId);
+    logDetailed("QueryValue: " + gameId);
     var playerName = getQueryString("playerName");
-    log("Player Name: " + playerName);
+    logDetailed("Player Name: " + playerName);
 
-    log("Sending Player!");
-    log("Games Count: " + games.length);
+    logDetailed("Sending Player!");
+    logDetailed("Games Count: " + games.length);
     //set the right game
     for(var i = games.length-1; i >= 0; i--) {
-        log("games[i].id " + games[i].id + " == gameId " + gameId);
+        logDetailed("games[i].id " + games[i].id + " == gameId " + gameId);
         if(games[i].id == gameId) {
             if(notNullOrWhitespace(playerName) && !games[i].anyPlayers(function(p){ return p.name === playerName})) {
                 currentPlayer = new Player({name: playerName});
-                log("Creating currentPlayer: " + currentPlayer.toString());
+                logDetailed("Creating currentPlayer: " + currentPlayer.toString());
                 games[i].players.push(currentPlayer);
             }
             else {
@@ -110,20 +110,20 @@ function GetGamesAndSendInput() {
         }
     }
 
-    log("Current Game Set! Game ID: " + currentGame.id);
+    logDetailed("Current Game Set! Game ID: " + currentGame.id);
 
     ShowAnswerButton();
     SaveGames(GetGamesAsClient);
 }
 
 function SendInput() {
-    log("Sending Player!");
+    logDetailed("Sending Player!");
     //set the right game
     for(var i = games.length-1; i >= 0; i--) {
-        log("games[i].id " + games[i].id + " == gameId " + currentGame.id);
+        logDetailed("games[i].id " + games[i].id + " == gameId " + currentGame.id);
         if(games[i].id == currentGame.id) {
             currentPlayer = new Player({name: playerName});
-            log("Creating currentPlayer: " + currentPlayer.toString());
+            logDetailed("Creating currentPlayer: " + currentPlayer.toString());
             // TODO: a player should only be added if there are no players by the same name
             games[i].players.push(currentPlayer);
             currentGame = games[i];
@@ -132,7 +132,7 @@ function SendInput() {
 }
 
 function ShowAnswerButton() {
-    log('Showing Answer Button');
+    logDetailed('Showing Answer Button');
     changeHtmlDisplayAttributes('send-answer', 'inline');
     changeHtmlDisplayAttributes('betting', 'none');
 }
@@ -142,7 +142,7 @@ function SendAnswer() {
         currentPlayer.answers = [];
     }
 
-    log("Sending Answer. Start: " + JSON.stringify(currentPlayer.answers));
+    logDetailed("Sending Answer. Start: " + JSON.stringify(currentPlayer.answers));
 
     if (currentPlayer.answers.length < currentGame.questionIndex + 1) {
         var voidAnswersToInsert = (currentGame.questionIndex + 1) - currentPlayer.answers.length;
@@ -164,7 +164,7 @@ function SendAnswer() {
         document.getElementById("info-for-player").innerHTML = answerValue + "... what is wrong with you?";
     }
 
-    log("Question index (should not be negative): " + currentGame.questionIndex);
+    logDetailed("Question index (should not be negative): " + currentGame.questionIndex);
 
     for(var i = 0; i < currentGame.questionIndex+1; i++) {
         if(i == currentGame.questionIndex) {
@@ -172,7 +172,7 @@ function SendAnswer() {
         }
     }
 
-    log("Sending Answer. End: " + JSON.stringify(currentPlayer.answers));
+    logDetailed("Sending Answer. End: " + JSON.stringify(currentPlayer.answers));
 
     document.getElementById("info-for-player").innerHTML = "Answer Sent";
     SaveCurrentPlayer();
@@ -202,35 +202,35 @@ function getCurrentBalance() {
         var totalBetOnThisQuestion = 0;
         for (var k = 0; k < currentPlayer.bets[i].length; k++) {
             var bet = parseIntOrDefault(currentPlayer.bets[i][k].amount, 0);
-            log("adding to bets total: " + bet);
+            logDetailed("adding to bets total: " + bet);
             totalBetOnThisQuestion = parseInt(totalBetOnThisQuestion) + parseInt(bet);
         }
         totalBets += Math.max(0, totalBetOnThisQuestion - 2);
     }
 
-    log("totalBets: " + totalBets);
+    logDetailed("totalBets: " + totalBets);
     var totalWinnings = 0;
     for (var i = 0; i < qi; i++) {
-        log(JSON.stringify());
+        logDetailed(JSON.stringify());
         var winningAmt = parseIntOrDefault(currentGame.winnings[currentPlayer.color][i], 0);
-        log("adding to winnings total: " + winningAmt);
+        logDetailed("adding to winnings total: " + winningAmt);
         totalWinnings = parseInt(totalWinnings) + parseInt(winningAmt);
     }
 
-    log("totalWinnings: " + totalWinnings);
+    logDetailed("totalWinnings: " + totalWinnings);
 
     var money = parseInt(totalWinnings.toString()) - parseInt(totalBets.toString());
 
-    log("money: " + money);
+    logDetailed("money: " + money);
 
     var result = Math.max(money, 0);
-    log("result: " + result);
+    logDetailed("result: " + result);
 
     return result;
 }
 
 function CreateBettingButtonsAndLabels() {
-    log("CreateBettingButtonsAndLabels");
+    logDetailed("CreateBettingButtonsAndLabels");
     var bettingButtonsHtml = "<br>";
 
     currentGame.players.sort(
@@ -249,17 +249,17 @@ function CreateBettingButtonsAndLabels() {
     }
 
     updateMoney();
-    log(bettingButtonsHtml);
+    logDetailed(bettingButtonsHtml);
     updateElementWithNewHtml("player-buttons", bettingButtonsHtml, 54);
 
-    log("random");
+    logDetailed("random");
     changeHtmlDisplayAttributes('send-answer', 'none');
     changeHtmlDisplayAttributes('betting', 'inline');
 }
 
 function BetOnPlayer(i) {
-    log(" ");
-    log("Betting on i: " + i);
+    logDetailed(" ");
+    logDetailed("Betting on i: " + i);
     currentGame.players.sort(
         function(player1, player2){
             return player1.answers[currentGame.questionIndex] - player2.answers[currentGame.questionIndex];
@@ -268,11 +268,11 @@ function BetOnPlayer(i) {
 
     var player = currentGame.players[i];
 
-    log("player name from i: " + player.name);
+    logDetailed("player name from i: " + player.name);
     var currentValue = document.getElementById(player.color + "-label").innerHTML;
-    log("currentValue: " + currentValue);
+    logDetailed("currentValue: " + currentValue);
     var parsed = parseIntOrDefault(currentValue, 0);
-    log("parsedValue: " + parsed);
+    logDetailed("parsedValue: " + parsed);
 
     var newValue = parsed;
     var isNotFirstBetForThisPlayerThisTurn = !(parsed == 0);
@@ -281,21 +281,21 @@ function BetOnPlayer(i) {
     if(isNotFirstBetForThisPlayerThisTurn || haventBetOnMaxPlayerNumber) {
 
         if(myTotalBet < 2) {
-            log("free bet because myTotalBet (" + myTotalBet + ") < 2");
+            logDetailed("free bet because myTotalBet (" + myTotalBet + ") < 2");
             newValue = parsed + 1;
             myTotalBet++;
-            log("myTotalBet is now: " + myTotalBet);
+            logDetailed("myTotalBet is now: " + myTotalBet);
 
             if(parsed == 0) {
                 bettingLocationsCount++;
             }
         }
         else if(currentPlayer.money[currentGame.questionIndex] > 0) {
-            log("free bet because myMoney (" + currentPlayer.money[currentGame.questionIndex] + ") > 0");
+            logDetailed("free bet because myMoney (" + currentPlayer.money[currentGame.questionIndex] + ") > 0");
             newValue = parsed + 1;
             currentPlayer.money[currentGame.questionIndex] -= 1;
             myTotalBet++;
-            log("myTotalBet is now: " + myTotalBet);
+            logDetailed("myTotalBet is now: " + myTotalBet);
 
             if(parsed == 0) {
                 bettingLocationsCount++;
@@ -304,7 +304,7 @@ function BetOnPlayer(i) {
     }
 
     updateMoney();
-    log("newValue: " + newValue);
+    logDetailed("newValue: " + newValue);
     document.getElementById(player.color + "-label").innerHTML = newValue;
 }
 
@@ -312,7 +312,7 @@ function updateMoney() {
     var money = 0;
     try
     {
-        log(`MONEYCHECK: question index ${currentGame.questionIndex}
+        logDetailed(`MONEYCHECK: question index ${currentGame.questionIndex}
         and currentPlayerMoney ${currentPlayer.money[currentGame.questionIndex]}
         and ${parseInt(currentPlayer.money[currentGame.questionIndex])}`);
         money = parseInt(currentPlayer.money[currentGame.questionIndex]);
@@ -382,7 +382,7 @@ function MyPlayerIsMissing() {
             }
         }
     }
-    log("My player was found missing.");
+    logDetailed("My player was found missing.");
     return true;
 }
-log("client.js loaded");
+logDetailed("client.js loaded");

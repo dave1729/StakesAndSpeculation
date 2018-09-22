@@ -10,12 +10,12 @@ function GetCurrentGame(theGameId) {
         theGameId = currentGame.id
     }
 
-    log("GETTING CURRENT GAME " + theGameId);
+    logDetailed("GETTING CURRENT GAME " + theGameId);
 
     for(var i = games.length-1; i >= 0; i--) {
-        log("Checking Game " + games[i].id + " which has index " + games[i].questionIndex);
+        logDetailed("Checking Game " + games[i].id + " which has index " + games[i].questionIndex);
         if(games[i].id == theGameId) {
-            log("Returning Game " + games[i].id + " which has index " + games[i].questionIndex);
+            logDetailed("Returning Game " + games[i].id + " which has index " + games[i].questionIndex);
             return games[i];
         }
     }
@@ -116,7 +116,7 @@ function DisplayGames() {
 
     if(typeof currentPlayer !== 'undefined') {
         if (currentPlayer) {
-            log("CurrentPlayer: " + currentPlayer);
+            logDetailed("CurrentPlayer: " + currentPlayer);
             var myString = JSON.stringify(currentPlayer, null, 2);
             var finalString = myString.replace(/\n/g, "<br>").replace(/ /g, "&nbsp");
             element.innerHTML += finalString + "<br><br>";
@@ -161,7 +161,7 @@ function GetJson(objectTypeName, callbackOnSuccess) {
                         games.push(new Game(g));
                     });
                 }
-                log("Games Pulled.");
+                logDetailed("Games Pulled.");
                 if(callbackOnSuccess) callbackOnSuccess();
             }
             else {

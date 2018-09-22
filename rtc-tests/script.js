@@ -45,7 +45,7 @@ drone.on('open', error => {
     if (error) {
       return console.error(error);
     }
-    console.log('Connected to signaling server');
+    console.logDetailed(('Connected to signaling server');
   });
   // We're connected to the room and received an array of 'members'
   // connected to the room (including us). Signaling server is ready.
@@ -68,7 +68,7 @@ function sendSignalingMessage(message) {
 }
 
 function startWebRTC(isOfferer) {
-  console.log('Starting WebRTC in as', isOfferer ? 'offerer' : 'waiter');
+  console.logDetailed(('Starting WebRTC in as', isOfferer ? 'offerer' : 'waiter');
   pc = new RTCPeerConnection(configuration);
 
   // 'onicecandidate' notifies us whenever an ICE agent needs to deliver a
@@ -108,10 +108,10 @@ function startListentingToSignals() {
     if (message.sdp) {
       // This is called after receiving an offer or answer from another peer
       pc.setRemoteDescription(new RTCSessionDescription(message.sdp), () => {
-        console.log('pc.remoteDescription.type', pc.remoteDescription.type);
+        console.logDetailed(('pc.remoteDescription.type', pc.remoteDescription.type);
         // When receiving an offer lets answer it
         if (pc.remoteDescription.type === 'offer') {
-          console.log('Answering offer');
+          console.logDetailed(('Answering offer');
           pc.createAnswer(localDescCreated, error => console.error(error));
         }
       }, error => console.error(error));
@@ -140,7 +140,7 @@ function setupDataChannel() {
 }
 
 function checkDataChannelState() {
-  console.log('WebRTC channel state is:', dataChannel.readyState);
+  console.logDetailed(('WebRTC channel state is:', dataChannel.readyState);
   if (dataChannel.readyState === 'open') {
     insertMessageToDOM({content: 'WebRTC data channel is now open'});
   }

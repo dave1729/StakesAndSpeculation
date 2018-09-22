@@ -35,19 +35,19 @@ function test1() {
     var testName = "getWinningMultiplier";
 
     var multiplierArray = getWinningMultiplierArray(0);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(1);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(2);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(3);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(4);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(5);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
     var multiplierArray = getWinningMultiplierArray(6);
-    log("winning multiplier array: " + multiplierArray);
+    logDetailed(("winning multiplier array: " + multiplierArray);
 
     var index = 1;
     var array = getWinningMultiplierArray(5);
@@ -67,14 +67,14 @@ function test2() {
 
     var totalBets = parseIntOrDefault(2, 0);
 
-    log("totalBets: " + totalBets);
+    logDetailed(("totalBets: " + totalBets);
     var totalWinnings = parseInt(6);
 
-    log("totalWinnings: " + totalWinnings);
+    logDetailed(("totalWinnings: " + totalWinnings);
 
     var money = parseInt(totalWinnings) - parseInt(totalBets);
 
-    log("money: " + money);
+    logDetailed(("money: " + money);
 
     var result = Math.max(money, 0);
 
@@ -95,15 +95,15 @@ function test3() {
     arrayOfArrays.push([1, 2, 3, 4]);
     arrayOfArrays.push([5, 6, 7, 8]);
 
-    log("before: " + arrayOfArrays);
+    logDetailed(("before: " + arrayOfArrays);
 
     arrayOfArrays.forEach(function(x) {
-        log("x: " + x[1]);
+        logDetailed(("x: " + x[1]);
         x[1] = x[1] + 1;
-        log("x: " + x[1]);
+        logDetailed(("x: " + x[1]);
     });
 
-    log("after: " + arrayOfArrays);
+    logDetailed(("after: " + arrayOfArrays);
 
     var result = arrayOfArrays[1][1];
     if (result == 7) {
@@ -118,10 +118,10 @@ function test3() {
 
 function test4() {
     var emptyArray = [];
-    log(emptyArray);
+    logDetailed((emptyArray);
     emptyArray[2] = "thing";
 
-    log(emptyArray);
+    logDetailed((emptyArray);
 
 
     testName = "testing game de-serialization";
